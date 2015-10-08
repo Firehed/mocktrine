@@ -104,10 +104,16 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($om->find('Firehed\A', 4),
             'Manager->find(class, id) returned an object it should not have');
     }
- 
 
-
-
+    /**
+     * @covers ::getMockObjectManager
+     */
+    public function testExceptionConsistencyForUnmappedClasses() {
+        $om = $this->getMockObjectManager();
+        $this->setExpectedException(
+            'Doctrine\Common\Persistence\Mapping\MappingException');
+        $om->find('Firehed\B', 1);
+    }
 
 }
 

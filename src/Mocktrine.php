@@ -3,6 +3,7 @@
 namespace Firehed;
 
 use PHPUnit_Framework_MockObject_MockObject as Mock;
+use Doctrine\Common\Persistence\Mapping\MappingException;
 
 trait Mocktrine
 {
@@ -32,7 +33,13 @@ trait Mocktrine
 
         $mock->method('find')
             ->will($this->returnCallback(function($model, $id) use ($mock) {
-                return $mock->getRepository($model)->find($id);
+                $repo = $mock->getRepository($model);
+                if (!$repo) {
+                    throw new MappingException(sprintf(
+                        "Class '%s' is not mapped in tests",
+                        $model));
+                }
+                return $repo->find($id);
             }));
 
         return $mock;
