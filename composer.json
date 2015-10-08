@@ -1,0 +1,23 @@
+{
+    "name": "firehed/mocktrine",
+    "description": "A trait to make testing code using Doctrine easier",
+    "require": {},
+    "require-dev": {
+        "firehed/arctools": "^1.0",
+        "doctrine/orm": "^2.5",
+        "phpunit/phpunit": "^4.8"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eric Stern",
+            "email": "eric@ericstern.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Firehed\\": ["src/", "tests/"]
+        }
+    },
+    "keywords": ["testing", "mock", "mocking", "doctrine"]
+}
