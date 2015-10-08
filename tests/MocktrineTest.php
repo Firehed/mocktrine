@@ -16,7 +16,7 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::addDoctrineMock
      */
     public function testAddDoctrineMock() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->assertSame($this,
             $this->addDoctrineMock($mockObj),
             'Mocktrine->addDoctrineMock did not return $this');
@@ -26,11 +26,11 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testGetMockObjectManager() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $this->assertInstanceOf('Doctrine\Common\Persistency\ObjectManager',
+        $this->assertInstanceOf('Doctrine\Common\Persistence\ObjectManager',
             $om,
             'Moctrine->getMockObjectManager() returned wrong type');
     }
@@ -39,12 +39,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testManagerFind() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame($mockObj,
-            $om->find('Firehed\Mocktrine\A', 3),
+            $om->find('Firehed\A', 3),
             'Manager->find(class, id) failed');
     }
 
@@ -53,11 +53,11 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testManagerGetRepository() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $repo = $om->getRepository('Firehed\Mocktrine\A');
+        $repo = $om->getRepository('Firehed\A');
         $this->assertInstanceOf('Doctrine\ORM\EntityRepository',
             $repo,
             'getRepository returned the wrong type');
@@ -71,12 +71,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testRepoFindBy() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame([$mockObj],
-            $om->getRepository('Firehed\Mocktrine\A')->findBy(['id' => 3]),
+            $om->getRepository('Firehed\A')->findBy(['id' => 3]),
             'repo->findBy([id=>id]) failed');
     }
 
@@ -84,12 +84,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testRepoFindOneBy() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame($mockObj,
-            $om->getRepository('Firehed\Mocktrine\A')->findOneBy(['id' => 3]),
+            $om->getRepository('Firehed\A')->findOneBy(['id' => 3]),
             'repo->findOneBy([id=>id]) failed');
     }
 
@@ -97,11 +97,11 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testNegativeFilteringOnProperties() {
-        $mockObj = $this->getMock('Firehed\Mocktrine\A');
+        $mockObj = $this->getMock('Firehed\A');
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $this->assertNull($om->find('Firehed\Mocktrine\A', 4),
+        $this->assertNull($om->find('Firehed\A', 4),
             'Manager->find(class, id) returned an object it should not have');
     }
  
