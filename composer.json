@@ -3,9 +3,8 @@
     "description": "A trait to make testing code using Doctrine easier",
     "require": {},
     "require-dev": {
-        "firehed/arctools": "^1.0",
         "doctrine/orm": "^2.5",
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^5.4 || ^6 || ^7"
     },
     "license": "MIT",
     "authors": [
@@ -16,7 +15,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Firehed\\": ["src/", "tests/"]
+            "Firehed\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Firehed\\": "tests/"
         }
     },
     "keywords": ["testing", "mock", "mocking", "doctrine"]

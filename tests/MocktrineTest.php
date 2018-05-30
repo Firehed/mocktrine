@@ -2,12 +2,16 @@
 
 namespace Firehed;
 
+use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityRepository;
+
 /**
  * @coversDefaultClass Firehed\MocktrineTest
  * @covers ::<protected>
  * @covers ::<private>
  */
-class MocktrineTest extends \PHPUnit_Framework_TestCase
+class MocktrineTest extends \PHPUnit\Framework\TestCase
 {
 
     use Mocktrine;
@@ -16,7 +20,7 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::addDoctrineMock
      */
     public function testAddDoctrineMock() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->assertSame($this,
             $this->addDoctrineMock($mockObj),
             'Mocktrine->addDoctrineMock did not return $this');
@@ -26,11 +30,11 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testGetMockObjectManager() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $this->assertInstanceOf('Doctrine\Common\Persistence\ObjectManager',
+        $this->assertInstanceOf(ObjectManager::class,
             $om,
             'Moctrine->getMockObjectManager() returned wrong type');
     }
@@ -39,12 +43,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testManagerFind() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame($mockObj,
-            $om->find('Firehed\A', 3),
+            $om->find(A::class, 3),
             'Manager->find(class, id) failed');
     }
 
@@ -53,12 +57,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testManagerGetRepository() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $repo = $om->getRepository('Firehed\A');
-        $this->assertInstanceOf('Doctrine\ORM\EntityRepository',
+        $repo = $om->getRepository(A::class);
+        $this->assertInstanceOf(EntityRepository::class,
             $repo,
             'getRepository returned the wrong type');
 
@@ -71,12 +75,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testRepoFindBy() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame([$mockObj],
-            $om->getRepository('Firehed\A')->findBy(['id' => 3]),
+            $om->getRepository(A::class)->findBy(['id' => 3]),
             'repo->findBy([id=>id]) failed');
     }
 
@@ -84,12 +88,12 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testRepoFindOneBy() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
         $this->assertSame($mockObj,
-            $om->getRepository('Firehed\A')->findOneBy(['id' => 3]),
+            $om->getRepository(A::class)->findOneBy(['id' => 3]),
             'repo->findOneBy([id=>id]) failed');
     }
 
@@ -97,11 +101,11 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      * @covers ::getMockObjectManager
      */
     public function testNegativeFilteringOnProperties() {
-        $mockObj = $this->getMock('Firehed\A');
+        $mockObj = $this->createMock(A::class);
         $this->addDoctrineMock($mockObj, ['id' => 3]);
 
         $om = $this->getMockObjectManager();
-        $this->assertNull($om->find('Firehed\A', 4),
+        $this->assertNull($om->find(A::class, 4),
             'Manager->find(class, id) returned an object it should not have');
     }
 
@@ -110,8 +114,7 @@ class MocktrineTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionConsistencyForUnmappedClasses() {
         $om = $this->getMockObjectManager();
-        $this->setExpectedException(
-            'Doctrine\Common\Persistence\Mapping\MappingException');
+        $this->expectException(MappingException::class);
         $om->find('Firehed\B', 1);
     }
 

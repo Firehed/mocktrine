@@ -4,6 +4,8 @@ namespace Firehed;
 
 use PHPUnit_Framework_MockObject_MockObject as Mock;
 use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityRepository;
 
 trait Mocktrine
 {
@@ -21,7 +23,7 @@ trait Mocktrine
     }
 
     public function getMockObjectManager() {
-        $mock = $this->getMock('Doctrine\Common\Persistence\ObjectManager');
+        $mock = $this->createMock(ObjectManager::class);
 
         foreach ($this->mocked_objects as $mocked_class => $mocks) {
             $repo = $this->getMockRepoForClass($mocked_class);
