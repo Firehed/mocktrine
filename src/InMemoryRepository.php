@@ -118,9 +118,11 @@ class InMemoryRepository implements ObjectRepository
                 if ($propVal === $paramValue) {
                     continue;
                 }
-                // if (is_array($paramValue) && in_array($propVal, $paramValue)) {
-                //     continue;
-                // }
+                // If $paramValue is an array, we're simulating `$paramName IN
+                // ($paramValue)`
+                if (is_array($paramValue) && in_array($propVal, $paramValue)) {
+                    continue;
+                }
                 return false;
             }
             return true;

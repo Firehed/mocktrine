@@ -66,6 +66,22 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @covers ::findBy */
+    public function testFindByWithArrayValue(): void
+    {
+        $repo = $this->getFixture();
+        $results = $repo->findBy([
+            'email' => ['1@example.com', '3@example.com'],
+        ]);
+        $this->assertIsArray($results);
+        $this->assertCount(2, $results);
+        usort($results, function ($a, $b) {
+            return $a->getEmail() <=> $b->getEmail();
+        });
+        $this->assertSame('1@example.com', $results[0]->getEmail());
+        $this->assertSame('3@example.com', $results[1]->getEmail());
+    }
+
+    /** @covers ::findBy */
     public function testFindByWithSorting(): void
     {
         $repo = $this->getFixture();
