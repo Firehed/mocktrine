@@ -105,4 +105,31 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $em->flush();
         $this->assertSame($id, $node->getNodeId(), 'Id must not change');
     }
+
+    /**
+     * @covers ::remove
+     * @covers ::flush
+     */
+    public function testRemoveMakesQueryingEntityInaccessable(): void
+    {
+        $node = new Entities\Node();
+        $em = new InMemoryEntityManager();
+        $em->merge($node);
+        $this->assertSame(
+            $node,
+            $em->find(Entities\Node::class, $node->getNodeId()),
+            'Merged node should be found',
+        );
+        $em->remove($node);
+        $this->assertSame(
+            $node,
+            $em->find(Entities\Node::class, $node->getNodeId()),
+            'Removed node should still be found before flush',
+        );
+        $em->flush();
+        $this->assertNull(
+            $em->find(Entities\Node::class, $node->getNodeId()),
+            'Removed node not should be found after flush',
+        );
+    }
 }

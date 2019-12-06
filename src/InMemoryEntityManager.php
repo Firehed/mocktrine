@@ -31,8 +31,9 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     private $repos = [];
 
-
     private $needIds = [];
+
+    private $pendingDeletes = [];
 
     // ObjectMangaer (parent interface)
 
@@ -82,7 +83,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function remove($object)
     {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
+        $this->pendingDeletes[get_class($object)][] = $object;
     }
 
     /**
@@ -157,6 +158,19 @@ class InMemoryEntityManager implements EntityManagerInterface
          * @var class-string<Entity> $className
          * @var Entity[] $entities
          */
+        foreach ($this->pendingDeletes as $className => $entities) {
+            $repo = $this->getRepository($className);
+            foreach ($entities as $entity) {
+                $repo->remove($entity);
+            }
+        }
+        $this->pendingDeletes = [];
+
+        /**
+         * @template Entity
+         * @var class-string<Entity> $className
+         * @var Entity[] $entities
+         */
         foreach ($this->needIds as $className => $entities) {
             $repo = $this->getRepository($className);
             if (!$repo->isIdGenerated()) {
@@ -172,6 +186,7 @@ class InMemoryEntityManager implements EntityManagerInterface
                 }
             }
         }
+        $this->needIds = [];
     }
 
     /**

@@ -66,6 +66,18 @@ class InMemoryRepository implements ObjectRepository
         $this->managedEntities[spl_object_hash($entity)] = $entity;
     }
 
+    /**
+     * Used by the EntityManager when entities with deletion pending are
+     * flushed.
+     *
+     * @internal
+     *
+     * @param Entity $entity
+     */
+    public function remove(object $entity): void
+    {
+        unset($this->managedEntities[spl_object_hash($entity)]);
+    }
 
     // ObjectRepository implementation
 
