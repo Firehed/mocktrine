@@ -76,6 +76,26 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
      * @covers ::persist
      * @covers ::flush
      */
+    public function testIdIsNotChangedAfterSecondFlush(): void
+    {
+        $user = new Entities\User('1@example.com', 'last');
+        $this->assertNull($user->getId(), 'Precheck: Id should not be assigned yet');
+        $em = new InMemoryEntityManager();
+        $em->persist($user);
+        $em->flush();
+        $id = $user->getId();
+        $this->assertNotNull($id, 'Id should be assigned');
+        $this->assertIsInt($id);
+        // Assume other stuff happened in-between the above and here
+        $em->persist($user);
+        $em->flush();
+        $this->assertSame($id, $user->getId(), 'Id should not have changed');
+    }
+
+    /**
+     * @covers ::persist
+     * @covers ::flush
+     */
     public function testIdNotAssignedWithoutGeneratedValueAnnotation(): void
     {
         $node = new Entities\Node();

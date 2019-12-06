@@ -167,7 +167,9 @@ class InMemoryEntityManager implements EntityManagerInterface
             $rp = new \ReflectionProperty($className, $idField);
             $rp->setAccessible(true);
             foreach ($entities as $entity) {
-                $rp->setValue($entity, random_int(0, PHP_INT_MAX));
+                if ($rp->getValue($entity) === null) {
+                    $rp->setValue($entity, random_int(0, PHP_INT_MAX));
+                }
             }
         }
     }
