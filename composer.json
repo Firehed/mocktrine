@@ -1,11 +1,27 @@
 {
     "name": "firehed/mocktrine",
-    "description": "A trait to make testing code using Doctrine easier",
-    "require": {},
+    "description": "PHPUnit Doctrine mocking tools",
+    "type": "library",
+    "require": {
+        "doctrine/orm": "^2.6",
+        "doctrine/persistence": "^1.1",
+        "phpdocumentor/reflection-docblock": "^4.3"
+    },
     "require-dev": {
-        "firehed/arctools": "^1.0",
-        "doctrine/orm": "^2.5",
-        "phpunit/phpunit": "^4.8"
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12.0",
+        "phpunit/phpunit": "^8.4",
+        "vimeo/psalm": "^3.6"
+    },
+    "autoload": {
+      "psr-4": {
+        "Firehed\\Mocktrine\\": "src"
+      }
+    },
+    "autoload-dev": {
+      "psr-4": {
+        "Firehed\\Mocktrine\\": "tests"
+      }
     },
     "license": "MIT",
     "authors": [
@@ -14,10 +30,16 @@
             "email": "eric@ericstern.com"
         }
     ],
-    "autoload": {
-        "psr-4": {
-            "Firehed\\": ["src/", "tests/"]
-        }
+    "config": {
+        "sort-packages": true
     },
-    "keywords": ["testing", "mock", "mocking", "doctrine"]
+    "scripts": {
+      "coverage": "phpunit --coverage-html .generated/codecoverage; open .generated/codecoverage/index.html",
+      "phpunit": "phpunit",
+      "phpstan": "phpstan analyse .",
+      "test": [
+        "@phpunit",
+        "@phpstan"
+      ]
+    }
 }

@@ -1,7 +1,0 @@
-{
-    "phabricator.uri": "https://phabricator.ericstern.com",
-    "unit.engine": "Firehed\\Arctools\\Unit\\PHPUnitTestEngine",
-    "load": [
-        "vendor/firehed/arctools/src/"
-    ]
-}
