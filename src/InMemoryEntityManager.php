@@ -35,6 +35,13 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     private $pendingDeletes = [];
 
+    private array $onFlushCallbacks = [];
+
+    public function addOnFlushCallback(callable $callback): void
+    {
+        $this->onFlushCallbacks[] = $callback;
+    }
+
     // ObjectMangaer (parent interface)
 
     /**
@@ -187,6 +194,9 @@ class InMemoryEntityManager implements EntityManagerInterface
             }
         }
         $this->needIds = [];
+        foreach ($this->onFlushCallbacks as $callback) {
+            $callback();
+        }
     }
 
     /**
