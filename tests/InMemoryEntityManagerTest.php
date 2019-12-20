@@ -168,4 +168,19 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertNotNull($sid->getId());
         $this->assertIsString($sid->getId());
     }
+
+    /**
+     * @covers ::persist
+     * @covers ::flush
+     */
+    public function testUnspecifiedIdIsString(): void
+    {
+        $sid = new Entities\UnspecifiedId();
+        $this->assertNull($sid->getId());
+        $em = new InMemoryEntityManager();
+        $em->persist($sid);
+        $em->flush();
+        $this->assertNotNull($sid->getId());
+        $this->assertIsString($sid->getId());
+    }
 }

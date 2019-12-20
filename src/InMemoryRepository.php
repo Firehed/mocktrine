@@ -276,7 +276,9 @@ class InMemoryRepository implements ObjectRepository
             assert($docComment !== false);
             $docblock = $this->docblockFactory->create($docComment);
             if ($docblock->hasTag('Id')) {
-                $idType = 'int';
+                // If an Id Column doesn't have type="integer" it defaults to
+                // string (like all other columns)
+                $idType = 'string';
                 $columnTags = $docblock->getTagsByName('Column');
                 if (count($columnTags) > 0) {
                     $columnTag = $columnTags[0];
@@ -287,6 +289,14 @@ class InMemoryRepository implements ObjectRepository
                         $matchCount = preg_match('#type="([a-z]+)"#', $descString, $matches);
                         if ($matchCount > 0) {
                             $idType = $matches[1];
+                            if ($idType !== 'string' && $idType !== 'integer') {
+                                throw new UnexpectedValueException(sprintf(
+                                    'Detected Id type is %s, only %s and %s are valid',
+                                    $idType,
+                                    'string',
+                                    'integer'
+                                ));
+                            }
                         }
                     }
                 }
