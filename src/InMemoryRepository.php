@@ -261,6 +261,8 @@ class InMemoryRepository implements ObjectRepository
     /**
      * Searches for an @Id tag on the entity, and returns a tuple containing
      * the associated property name and whether the value is generated.
+     *
+     * @return array{string|null, bool}
      */
     private function findIdField(): array
     {
