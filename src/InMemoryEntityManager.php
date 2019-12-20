@@ -31,9 +31,27 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     private $repos = [];
 
+    /**
+     * @template Entity
+     * @var array<class-string<Entity>, array<Entity>>
+     */
     private $needIds = [];
 
+    /**
+     * @template Entity
+     * @var array<class-string<Entity>, array<Entity>>
+     */
     private $pendingDeletes = [];
+
+    /**
+     * @var callable[]
+     */
+    private array $onFlushCallbacks = [];
+
+    public function addOnFlushCallback(callable $callback): void
+    {
+        $this->onFlushCallbacks[] = $callback;
+    }
 
     // ObjectMangaer (parent interface)
 
@@ -187,6 +205,9 @@ class InMemoryEntityManager implements EntityManagerInterface
             }
         }
         $this->needIds = [];
+        foreach ($this->onFlushCallbacks as $callback) {
+            $callback();
+        }
     }
 
     /**

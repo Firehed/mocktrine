@@ -132,4 +132,25 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
             'Removed node not should be found after flush',
         );
     }
+
+    /**
+     * @covers ::addOnFlushCallback
+     * @covers ::flush
+     */
+    public function testAddOnFlushCallback(): void
+    {
+        $em = new InMemoryEntityManager();
+        $flushed1 = $flushed2 = false;
+        $em->addOnFlushCallback(function() use (&$flushed1) {
+            $flushed1 = true;
+        });
+        $em->addOnFlushCallback(function() use (&$flushed2) {
+            $flushed2 = true;
+        });
+        $this->assertFalse($flushed1);
+        $this->assertFalse($flushed2);
+        $em->flush();
+        $this->assertTrue($flushed1, 'First callback did not fire');
+        $this->assertTrue($flushed2, 'Second callback did not fire');
+    }
 }
