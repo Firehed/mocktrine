@@ -26,7 +26,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      * This holds all of the InMemoryRepository objects, which will be lazily
      * instantiated as they are first used.
      *
-     * @template Entity
+     * @template Entity of object
      * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
     private $repos = [];
@@ -60,7 +60,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * This is just a convenient shortcut for getRepository($className)->find($id).
      *
-     * @template Entity
+     * @template Entity of object
      * @param class-string<Entity> $className
      * @param mixed  $id        The identity of the object to find.
      *
@@ -172,7 +172,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function flush()
     {
         /**
-         * @template Entity
+         * @template Entity of object
          * @var class-string<Entity> $className
          * @var Entity[] $entities
          */
@@ -185,7 +185,7 @@ class InMemoryEntityManager implements EntityManagerInterface
         $this->pendingDeletes = [];
 
         /**
-         * @template Entity
+         * @template Entity of object
          * @var class-string<Entity> $className
          * @var Entity[] $entities
          */
@@ -213,12 +213,13 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the repository for a class.
      *
-     * @template Entity
+     * @template Entity of object
      * @param class-string<Entity> $className
      * @return InMemoryRepository<Entity>
      */
     public function getRepository($className)
     {
+        // https://github.com/phpstan/phpstan/issues/2761
         if (!isset($this->repos[$className])) {
             $this->repos[$className] = new InMemoryRepository($className);
         }
