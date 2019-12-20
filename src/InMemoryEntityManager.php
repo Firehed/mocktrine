@@ -219,6 +219,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function getRepository($className)
     {
+        // https://github.com/phpstan/phpstan/issues/2761
         if (!isset($this->repos[$className])) {
             $this->repos[$className] = new InMemoryRepository($className);
         }
