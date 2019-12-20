@@ -9,6 +9,7 @@ use ReflectionClass;
 use TypeError;
 use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 /**
  * @template Entity of object
@@ -25,6 +26,9 @@ class InMemoryRepository implements ObjectRepository
 
     /** @var ?string */
     private $idField;
+
+    /** @var ?string */
+    private $idType;
 
     /** @var bool */
     private $isIdGenerated;
@@ -45,6 +49,7 @@ class InMemoryRepository implements ObjectRepository
         $this->rc = new ReflectionClass($fqcn);
         [
             $this->idField,
+            $this->idType,
             $this->isIdGenerated
         ] = $this->findIdField();
         // TODO: define behavior of non-int generated id fields
@@ -262,7 +267,7 @@ class InMemoryRepository implements ObjectRepository
      * Searches for an @Id tag on the entity, and returns a tuple containing
      * the associated property name and whether the value is generated.
      *
-     * @return array{string|null, bool}
+     * @return array{string|null, string|null, bool}
      */
     private function findIdField(): array
     {
@@ -271,13 +276,38 @@ class InMemoryRepository implements ObjectRepository
             assert($docComment !== false);
             $docblock = $this->docblockFactory->create($docComment);
             if ($docblock->hasTag('Id')) {
+                // If an Id Column doesn't have type="integer" it defaults to
+                // string (like all other columns)
+                $idType = 'string';
+                $columnTags = $docblock->getTagsByName('Column');
+                if (count($columnTags) > 0) {
+                    $columnTag = $columnTags[0];
+                    assert($columnTag instanceof BaseTag);
+                    $desc = $columnTag->getDescription();
+                    if ($desc !== null) {
+                        $descString = $desc->render();
+                        $matchCount = preg_match('#type="([a-z]+)"#', $descString, $matches);
+                        if ($matchCount > 0) {
+                            $idType = $matches[1];
+                            if ($idType !== 'string' && $idType !== 'integer') {
+                                throw new UnexpectedValueException(sprintf(
+                                    'Detected Id type is %s, only %s and %s are valid',
+                                    $idType,
+                                    'string',
+                                    'integer'
+                                ));
+                            }
+                        }
+                    }
+                }
                 return [
                     $reflectionProp->getName(),
+                    $idType,
                     $docblock->hasTag('GeneratedValue'),
                 ];
             }
         }
-        return [null, false];
+        return [null, null, false];
     }
 
     /**
@@ -289,6 +319,17 @@ class InMemoryRepository implements ObjectRepository
     public function getIdField(): ?string
     {
         return $this->idField;
+    }
+
+    /**
+     * This is used to generate identifiers when flush() is called. It should
+     * not be used except by the EntityManager.
+     *
+     * @internal
+     */
+    public function getIdType(): ?string
+    {
+        return $this->idType;
     }
 
     /**

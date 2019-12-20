@@ -153,4 +153,34 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($flushed1, 'First callback did not fire');
         $this->assertTrue($flushed2, 'Second callback did not fire');
     }
+
+    /**
+     * @covers ::persist
+     * @covers ::flush
+     */
+    public function testStringIdIsGenerated(): void
+    {
+        $sid = new Entities\StringId();
+        $this->assertNull($sid->getId());
+        $em = new InMemoryEntityManager();
+        $em->persist($sid);
+        $em->flush();
+        $this->assertNotNull($sid->getId());
+        $this->assertIsString($sid->getId());
+    }
+
+    /**
+     * @covers ::persist
+     * @covers ::flush
+     */
+    public function testUnspecifiedIdIsString(): void
+    {
+        $sid = new Entities\UnspecifiedId();
+        $this->assertNull($sid->getId());
+        $em = new InMemoryEntityManager();
+        $em->persist($sid);
+        $em->flush();
+        $this->assertNotNull($sid->getId());
+        $this->assertIsString($sid->getId());
+    }
 }

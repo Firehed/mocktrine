@@ -11,7 +11,7 @@ class User
 {
     /**
      * @Id
-     * @Column
+     * @Column(type="integer")
      * @GeneratedValue
      * @var ?int
      */
