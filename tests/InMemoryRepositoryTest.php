@@ -37,7 +37,8 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     public function testManageAcceptsOwnClass(): void
     {
         $repo = new InMemoryRepository(Entities\User::class);
-        $this->assertNull($repo->manage(new Entities\User('1@example.com', 'last', 1)));
+        $repo->manage(new Entities\User('1@example.com', 'last', 1));
+        $this->assertTrue(true, 'Should not throw');
     }
 
     /** @covers ::manage */
