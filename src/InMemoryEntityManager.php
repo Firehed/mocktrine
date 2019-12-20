@@ -26,7 +26,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      * This holds all of the InMemoryRepository objects, which will be lazily
      * instantiated as they are first used.
      *
-     * @template Entity
+     * @template Entity of object
      * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
     private $repos = [];
