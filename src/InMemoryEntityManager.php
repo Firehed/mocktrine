@@ -60,7 +60,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * This is just a convenient shortcut for getRepository($className)->find($id).
      *
-     * @template Entity
+     * @template Entity of object
      * @param class-string<Entity> $className
      * @param mixed  $id        The identity of the object to find.
      *
@@ -172,7 +172,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function flush()
     {
         /**
-         * @template Entity
+         * @template Entity of object
          * @var class-string<Entity> $className
          * @var Entity[] $entities
          */
@@ -185,7 +185,7 @@ class InMemoryEntityManager implements EntityManagerInterface
         $this->pendingDeletes = [];
 
         /**
-         * @template Entity
+         * @template Entity of object
          * @var class-string<Entity> $className
          * @var Entity[] $entities
          */
@@ -213,7 +213,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the repository for a class.
      *
-     * @template Entity
+     * @template Entity of object
      * @param class-string<Entity> $className
      * @return InMemoryRepository<Entity>
      */
