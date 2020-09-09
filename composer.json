@@ -3,6 +3,7 @@
     "description": "PHPUnit Doctrine mocking tools",
     "type": "library",
     "require": {
+        "php": "^7.4 || ^8.0",
         "doctrine/orm": "^2.6",
         "doctrine/persistence": "^1.1",
         "phpdocumentor/reflection-docblock": "^4.3"
