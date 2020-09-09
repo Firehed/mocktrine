@@ -54,6 +54,9 @@ jobs:
           ${{ matrix.dep-version }}
           --optimize-autoloader
 
+      - name: PHP Info
+        run: php -i
+
       - name: PHPUnit
         run: composer phpunit \
           --coverage-clover coverage.xml
