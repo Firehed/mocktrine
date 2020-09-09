@@ -44,14 +44,14 @@ jobs:
             ${{ runner.os }}-${{ matrix.php }}-${{ matrix.dep-version }}-php-
 
       - name: Install dependencies
-        run: composer update \
-          --ignore-platform-reqs \
-          --no-ansi \
-          --no-interaction \
-          --no-progress \
-          --no-suggest \
-          --prefer-dist \
-          ${{ matrix.dep-version }} \
+        run: composer update
+          --ignore-platform-reqs
+          --no-ansi
+          --no-interaction
+          --no-progress
+          --no-suggest
+          --prefer-dist
+          ${{ matrix.dep-version }}
           --optimize-autoloader
 
       - name: PHPUnit
