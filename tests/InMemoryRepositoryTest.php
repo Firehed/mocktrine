@@ -48,6 +48,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->expectException(TypeError::class);
         /**
          * @psalm-suppress InvalidArgument
+         * @phpstan-ignore-next-line
          */
         $repo->manage(new Entities\Group());
     }

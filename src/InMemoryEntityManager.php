@@ -32,13 +32,13 @@ class InMemoryEntityManager implements EntityManagerInterface
     private $repos = [];
 
     /**
-     * @template Entity
+     * @template Entity of object
      * @var array<class-string<Entity>, array<Entity>>
      */
     private $needIds = [];
 
     /**
-     * @template Entity
+     * @template Entity of object
      * @var array<class-string<Entity>, array<Entity>>
      */
     private $pendingDeletes = [];

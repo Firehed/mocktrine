@@ -1,0 +1,27 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Array \\(array\\<class\\-string\\<Entity of object\\>, Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\>\\) does not accept Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\.$#"
+			count: 1
+			path: src/InMemoryEntityManager.php
+
+		-
+			message: "#^Array \\(array\\<class\\-string\\<Entity of object\\>, Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\>\\) does not accept key class\\-string\\<Entity of object\\>\\.$#"
+			count: 1
+			path: src/InMemoryEntityManager.php
+
+		-
+			message: "#^Method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should return Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\> but returns Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\|Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\.$#"
+			count: 1
+			path: src/InMemoryEntityManager.php
+
+		-
+			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with null and 'Id should be…' will always evaluate to false\\.$#"
+			count: 1
+			path: tests/InMemoryEntityManagerTest.php
+
+		-
+			message: "#^Unable to resolve the template type ExpectedType in call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\)$#"
+			count: 1
+			path: tests/InMemoryEntityManagerTest.php
+
