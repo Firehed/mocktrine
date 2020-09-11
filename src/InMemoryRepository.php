@@ -13,6 +13,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 /**
  * @template Entity of object
+ * @implements ObjectRepository<Entity>
  */
 class InMemoryRepository implements ObjectRepository
 {
