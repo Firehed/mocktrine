@@ -183,4 +183,32 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertNotNull($sid->getId());
         $this->assertIsString($sid->getId());
     }
+
+    /**
+     * This tests primarily serves to check that the generics on the
+     * EntityManager implementation are as accurate as possible, particularly
+     * when multiple different entity types are used in the same repository
+     * instance.
+     *
+     * @covers ::persist
+     * @covers ::flush
+     */
+    public function testInteractionWithMultipleEntities(): void
+    {
+        $user = new Entities\User('1@example.com', 'last', 10);
+        $stringId = new Entities\StringId();
+
+        $em = new InMemoryEntityManager();
+        $em->persist($user);
+        $em->persist($stringId);
+        $em->flush();
+        $this->assertNotNull($user->getId());
+        $this->assertNotNull($stringId->getId());
+
+        $foundUser = $em->find(Entities\User::class, 10);
+        $this->assertSame($user, $foundUser);
+
+        $foundStringId = $em->find(Entities\StringId::class, $stringId->getId());
+        $this->assertSame($foundStringId, $stringId);
+    }
 }
