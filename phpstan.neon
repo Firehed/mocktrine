@@ -1,11 +1,10 @@
 includes:
+    - phpstan-baseline.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
 parameters:
     excludes_analyse:
         - vendor
-    ignoreErrors:
-        -
-            message: "#^Parameter \\#1 \\$entity of method Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Firehed\\\\Mocktrine\\\\Entities\\\\User\\>\\:\\:manage\\(\\) expects Firehed\\\\Mocktrine\\\\Entities\\\\User, Firehed\\\\Mocktrine\\\\Entities\\\\Group given\\.$#"
-            path: tests/InMemoryRepositoryTest.php
-            count: 1
-    level: 8
+    level: max
+    paths:
+        - src
+        - tests
