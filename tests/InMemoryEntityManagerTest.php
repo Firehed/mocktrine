@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ObjectRepository;
 
 /**
  * @coversDefaultClass Firehed\Mocktrine\InMemoryEntityManager
