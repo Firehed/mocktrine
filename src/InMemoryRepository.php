@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use ReflectionClass;
 use TypeError;
@@ -13,6 +13,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 /**
  * @template Entity of object
+ * @implements ObjectRepository<Entity>
  */
 class InMemoryRepository implements ObjectRepository
 {
