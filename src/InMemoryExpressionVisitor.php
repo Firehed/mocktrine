@@ -90,6 +90,17 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
                         return $this->getValueOfProperty($entity, $field) >= $value;
                     },
                 );
+            case Comparison::IN:
+                return array_filter(
+                    $this->entities,
+                    function ($entity) use ($field, $value): bool {
+                        return in_array(
+                            $this->getValueOfProperty($entity, $field),
+                            $value,
+                            true,
+                        );
+                    },
+                );
             default:
                 throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         }
@@ -99,9 +110,7 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
     // public const LT          = '<';
     // public const LTE         = '<=';
     // public const GT          = '>';
-    // public const GTE         = '>=';
     // public const IS          = '='; // no difference with EQ
-    // public const IN          = 'IN';
     // public const NIN         = 'NIN';
     // public const CONTAINS    = 'CONTAINS';
     // public const MEMBER_OF   = 'MEMBER_OF';
