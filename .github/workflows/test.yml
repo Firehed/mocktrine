@@ -55,7 +55,7 @@ jobs:
           --optimize-autoloader
 
       - name: PHPUnit
-        run: composer phpunit \
+        run: vendor/bin/phpunit
           --coverage-clover coverage.xml
 
       - name: Submit code coverage
