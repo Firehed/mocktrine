@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
@@ -141,10 +142,10 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
     {
         $em = new InMemoryEntityManager();
         $flushed1 = $flushed2 = false;
-        $em->addOnFlushCallback(function() use (&$flushed1) {
+        $em->addOnFlushCallback(function () use (&$flushed1) {
             $flushed1 = true;
         });
-        $em->addOnFlushCallback(function() use (&$flushed2) {
+        $em->addOnFlushCallback(function () use (&$flushed2) {
             $flushed2 = true;
         });
         $this->assertFalse($flushed1);

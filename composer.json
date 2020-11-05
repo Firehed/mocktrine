@@ -12,6 +12,7 @@
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12.0",
         "phpunit/phpunit": "^9.3",
+        "squizlabs/php_codesniffer": "^3.5",
         "vimeo/psalm": "^3.6"
     },
     "autoload": {
@@ -36,11 +37,13 @@
     },
     "scripts": {
       "coverage": "phpunit --coverage-html .generated/codecoverage; open .generated/codecoverage/index.html",
-      "phpunit": "phpunit",
-      "phpstan": "phpstan analyse",
+      "analyze": "phpstan analyse",
+      "lint": "phpcs",
       "test": [
-        "@phpunit",
-        "@phpstan"
-      ]
+        "@unit",
+        "@analyze",
+        "@lint"
+      ],
+      "unit": "phpunit"
     }
 }

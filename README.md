@@ -6,6 +6,7 @@ A Doctrine mocking library for testing
 [![License](https://poser.pugx.org/firehed/mocktrine/license)](//packagist.org/packages/firehed/mocktrine)
 [![Test](https://github.com/Firehed/mocktrine/workflows/Test/badge.svg)](https://github.com/Firehed/mocktrine/actions?query=workflow%3ATest)
 [![Static analysis](https://github.com/Firehed/mocktrine/workflows/Static%20analysis/badge.svg)](https://github.com/Firehed/mocktrine/actions?query=workflow%3A%22Static+analysis%22)
+[![Lint](https://github.com/Firehed/mocktrine/workflows/Lint/badge.svg)](https://github.com/Firehed/mocktrine/actions?query=workflow%3ALint)
 
 ## Usage
 
