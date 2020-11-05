@@ -1,4 +1,4 @@
-name: Static analysis
+name: Lint
 
 on:
   push:
@@ -11,7 +11,7 @@ env:
   CI: "true"
 
 jobs:
-  phpstan:
+  phpcs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -32,5 +32,5 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --no-ansi --no-progress --no-suggest --prefer-dist --optimize-autoloader
 
-      - name: PHPStan
-        run: vendor/bin/phpstan analyse
+      - name: PHPCS
+        run: vendor/bin/phpcs
