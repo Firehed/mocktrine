@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Collections\{
+    ArrayCollection,
+    Collection,
+    Criteria,
+    Selectable,
+};
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use ReflectionClass;
@@ -14,9 +20,11 @@ use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 /**
  * @template Entity of object
+ *
  * @implements ObjectRepository<Entity>
+ * @implements Selectable<array-key, Entity>
  */
-class InMemoryRepository implements ObjectRepository
+class InMemoryRepository implements ObjectRepository, Selectable
 {
     /**
      * @var class-string<Entity>
@@ -35,8 +43,8 @@ class InMemoryRepository implements ObjectRepository
     /** @var bool */
     private $isIdGenerated;
 
-    /** @var Entity[] */
-    private $managedEntities = [];
+    /** @var ArrayCollection<array-key, Entity> */
+    private $managedEntities;
 
     /** @var ReflectionClass<Entity> */
     private $rc;
@@ -55,6 +63,8 @@ class InMemoryRepository implements ObjectRepository
             $this->isIdGenerated
         ] = $this->findIdField();
         // TODO: define behavior of non-int generated id fields
+
+        $this->managedEntities = new ArrayCollection();
     }
 
     /**
@@ -131,7 +141,7 @@ class InMemoryRepository implements ObjectRepository
      */
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
     {
-        $result = array_values(array_filter($this->managedEntities, function ($entity) use ($criteria) {
+        $result = array_values(array_filter($this->managedEntities->toArray(), function ($entity) use ($criteria) {
             foreach ($criteria as $paramName => $paramValue) {
                 $propVal = $this->getValueOfProperty($entity, $paramName);
                 if ($propVal === $paramValue) {
@@ -184,6 +194,15 @@ class InMemoryRepository implements ObjectRepository
     public function getClassName(): string
     {
         return $this->className;
+    }
+
+    /**
+     * Selectable implementation
+     * {@inheritdoc}
+     */
+    public function matching(Criteria $criteria): Collection
+    {
+        return $this->managedEntities->matching($criteria);
     }
 
     /**
