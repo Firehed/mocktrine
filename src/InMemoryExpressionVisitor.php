@@ -74,16 +74,22 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
     {
         $field = $expr->getField();
         $value = $expr->getValue()->getValue(); // Unwrap it
-        // var_dump($field, $value);
+
         switch ($expr->getOperator()) {
             case Comparison::EQ:
-                $matching = array_filter(
+                return array_filter(
                     $this->entities,
                     function ($entity) use ($field, $value): bool {
                         return $this->getValueOfProperty($entity, $field) === $value;
                     },
                 );
-                return $matching;
+            case Comparison::GTE:
+                return array_filter(
+                    $this->entities,
+                    function ($entity) use ($field, $value): bool {
+                        return $this->getValueOfProperty($entity, $field) >= $value;
+                    },
+                );
             default:
                 throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         }
