@@ -8,10 +8,12 @@ use Doctrine\Common\Collections\{
     ArrayCollection,
     Collection,
     Criteria,
+    Expr,
     Selectable,
 };
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
+use DomainException;
 use ReflectionClass;
 use TypeError;
 use UnexpectedValueException;
@@ -43,8 +45,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /** @var bool */
     private $isIdGenerated;
 
-    /** @var ArrayCollection<array-key, Entity> */
-    private $managedEntities;
+    /** @var Entity[] */
+    private $managedEntities = [];
 
     /** @var ReflectionClass<Entity> */
     private $rc;
@@ -63,8 +65,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
             $this->isIdGenerated
         ] = $this->findIdField();
         // TODO: define behavior of non-int generated id fields
-
-        $this->managedEntities = new ArrayCollection();
     }
 
     /**
@@ -141,7 +141,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
     {
-        $result = array_values(array_filter($this->managedEntities->toArray(), function ($entity) use ($criteria) {
+        $result = array_values(array_filter($this->managedEntities, function ($entity) use ($criteria) {
             foreach ($criteria as $paramName => $paramValue) {
                 $propVal = $this->getValueOfProperty($entity, $paramName);
                 if ($propVal === $paramValue) {
@@ -202,7 +202,16 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function matching(Criteria $criteria): Collection
     {
-        return $this->managedEntities->matching($criteria);
+        $expr = $criteria->getWhereExpression();
+
+        $ev = new InMemoryExpressionVisitor($this->getClassName(), $this->managedEntities);
+        $entities = $ev->dispatch($expr);
+
+        // var_dump($entities);
+
+        // sort them
+
+        return new ArrayCollection($entities);
     }
 
     /**
