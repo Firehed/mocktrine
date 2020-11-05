@@ -37,11 +37,13 @@
     },
     "scripts": {
       "coverage": "phpunit --coverage-html .generated/codecoverage; open .generated/codecoverage/index.html",
-      "phpunit": "phpunit",
-      "phpstan": "phpstan analyse",
+      "analyze": "phpstan analyse",
+      "lint": "phpcs",
       "test": [
-        "@phpunit",
-        "@phpstan"
-      ]
+        "@unit",
+        "@analyze",
+        "@lint"
+      ],
+      "unit": "phpunit"
     }
 }
