@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Expr\{
     Comparison,
     CompositeExpression,
     Expression,
-    ExpressionVisitor,
     Value,
 };
 use DomainException;
@@ -21,7 +20,7 @@ use phpDocumentor\Reflection\DocBlockFactory;
  *
  * @internal
  */
-class InMemoryExpressionVisitor // extends ExpressionVisitor
+class ExpressionMatcher
 {
     /** @var class-string<Entity> */
     private string $className;
@@ -51,7 +50,7 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
     /**
      * @return Entity[]
      */
-    public function dispatch(?Expression $expr): array
+    public function match(?Expression $expr): array
     {
         if ($expr instanceof Comparison) {
             $comparitor = $this->walkComparison($expr);
@@ -122,7 +121,7 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
         $expressions = $expr->getExpressionList();
         // For each expression in the composite, apply the filtering and gather
         // the results.
-        $filteredEntitySets = array_map([$this, 'dispatch'], $expressions);
+        $filteredEntitySets = array_map([$this, 'match'], $expressions);
 
         // Reduce the result sets to a single result set based on the
         // expression type:

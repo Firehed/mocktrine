@@ -9,11 +9,11 @@ use Doctrine\Common\Collections\Criteria;
 use Firehed\Mocktrine\Entities\GrabBag;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\InMemoryExpressionVisitor
+ * @coversDefaultClass Firehed\Mocktrine\ExpressionMatcher
  * @covers ::<protected>
  * @covers ::<private>
  */
-class ExpressionTest extends \PHPUnit\Framework\TestCase
+class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
 {
     /** @var InMemoryRepository<GrabBag> */
     private InMemoryRepository $repo;

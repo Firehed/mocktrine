@@ -204,8 +204,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
-        $ev = new InMemoryExpressionVisitor($this->getClassName(), $this->managedEntities);
-        $entities = $ev->dispatch($expr);
+        $matcher = new ExpressionMatcher($this->getClassName(), $this->managedEntities);
+        $entities = $matcher->match($expr);
 
         // var_dump($entities);
 
