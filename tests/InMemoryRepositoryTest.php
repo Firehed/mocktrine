@@ -342,6 +342,28 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
             $repo->find(4),
         ], $users);
     }
+    /** @covers ::matching */
+    public function testComplexMatchingWithDuplicates(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('lastName', 'last'))
+            ->orWhere($expr->andX(
+                $expr->eq('lastName', 'other'),
+                $expr->eq('email', '4@example.com'),
+            ))
+            ->orWhere($expr->eq('id', 4));
+
+        $repo = $this->getFixture();
+        $users = $repo->matching($crit)->toArray();
+
+        $this->assertCount(3, $users);
+        $this->assertEqualsCanonicalizing([
+            $repo->find(1),
+            $repo->find(2),
+            $repo->find(4),
+        ], $users);
+    }
 
     /**
      * @return InMemoryRepository<Entities\User>

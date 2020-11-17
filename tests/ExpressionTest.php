@@ -48,7 +48,26 @@ class ExpressionTest extends \PHPUnit\Framework\TestCase
     {
         $actual = $this->repo->matching($criteria)->toArray();
         $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
-        $this->assertEqualsCanonicalizing($expected, $actual);
+        // print_R($expected);
+        // Can't use assertEqualsCanonicalizing due to its internals. If it's
+        // changed or assertSameCanonicalizing is added, this should be able to
+        // use it instead.
+        foreach ($expected as $entity) {
+            $this->assertContains(
+                $entity,
+                $actual,
+                'Expected entity missing',
+            );
+        }
+        // This is intended to guard against duplicates in expected causing an
+        // extra in actual permitting the count to match.
+        foreach ($actual as $entity) {
+            $this->assertContains(
+                $entity,
+                $expected,
+                'Unexpected entity found',
+            );
+        }
     }
 
     public function testEq(): void
@@ -60,13 +79,13 @@ class ExpressionTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 8, 9);
     }
 
-    public function testGt(): void
+    public function testNeq(): void
     {
         $expr = Criteria::expr();
         $crit = Criteria::create()
-            ->where($expr->gt('floatField', 30));
+            ->where($expr->neq('floatField', 30));
 
-        $this->assertCriteriaReturnsIndexes($crit, 1, 3, 7);
+        $this->assertCriteriaReturnsIndexes($crit, 1, 2, 3, 4, 5, 6, 7);
     }
 
     public function testLt(): void
@@ -78,15 +97,6 @@ class ExpressionTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 2, 4, 5, 6);
     }
 
-    public function testGte(): void
-    {
-        $expr = Criteria::expr();
-        $crit = Criteria::create()
-            ->where($expr->gte('floatField', 30));
-
-        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 3, 7, 8, 9);
-    }
-
     public function testLte(): void
     {
         $expr = Criteria::expr();
@@ -96,8 +106,22 @@ class ExpressionTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 2, 4, 5, 6, 8, 9);
     }
 
-    public function testNeq(): void
+    public function testGt(): void
     {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->gt('floatField', 30));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 3, 7);
+    }
+
+    public function testGte(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->gte('floatField', 30));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 3, 7, 8, 9);
     }
 
     public function testIsNull(): void
@@ -106,29 +130,52 @@ class ExpressionTest extends \PHPUnit\Framework\TestCase
 
     public function testIn(): void
     {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->in('strField', ['hello', 'goodbye']));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 4, 6);
     }
 
     public function testNotIn(): void
     {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->notIn('strField', ['hello', 'goodbye']));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 2, 3, 5, 7, 8, 9);
     }
 
     public function testContains(): void
     {
-        // strpos(fieldVal, testVal) !== false
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->contains('strField', 'oo'));
+
+        $this->assertCriteriaReturnsIndexes($crit, 2, 4, 7, 8);
     }
 
     public function testMemberOf(): void
     {
+        $this->markTestSkipped('MEMBER_OF is not currently supported');
         // test value is in entity's array
     }
 
     public function testStartsWith(): void
     {
-        // str_starts_with
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->startsWith('strField', 'h'));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 5, 6, 7, 9);
     }
 
     public function testEndsWith(): void
     {
-        // str_ends_with
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->endsWith('strField', 'bye'));
+
+        $this->assertCriteriaReturnsIndexes($crit, 3, 4, 7);
     }
 }

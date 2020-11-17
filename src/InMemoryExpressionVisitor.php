@@ -54,7 +54,12 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
     public function dispatch(?Expression $expr): array
     {
         if ($expr instanceof Comparison) {
-            $entities = $this->walkComparison($expr);
+            $comparitor = $this->walkComparison($expr);
+            $entities = array_filter(
+                $this->entities,
+                fn ($e) => $comparitor($this->getValueOfProperty($e, $expr->getField()))
+            );
+            // $entities = $this->walkComparison($expr);
         } elseif ($expr instanceof CompositeExpression) {
             $entities = $this->walkCompositeExpression($expr);
         } elseif ($expr instanceof Value) {
@@ -68,57 +73,46 @@ class InMemoryExpressionVisitor // extends ExpressionVisitor
     }
 
     /**
-     * @return Entity[]
+     * @return callable(mixed $entityValue): bool
+     * xeturn Entity[]
      */
-    public function walkComparison(Comparison $expr): array
+    public function walkComparison(Comparison $expr): callable
     {
+        // var_dump($expr);
         $field = $expr->getField();
         $value = $expr->getValue()->getValue(); // Unwrap it
 
         switch ($expr->getOperator()) {
+            // case Comparison::IS: ?
             case Comparison::EQ:
-                return array_filter(
-                    $this->entities,
-                    function ($entity) use ($field, $value): bool {
-                        return $this->getValueOfProperty($entity, $field) === $value;
-                    },
-                );
+                // TODO: float/int casting
+                return fn ($entVal) => $entVal === $value;
+            case Comparison::NEQ:
+                // TODO: float/int casting
+                return fn ($entVal) => $entVal !== $value;
+            case Comparison::GT:
+                return fn ($entVal) => $entVal > $value;
             case Comparison::GTE:
-                return array_filter(
-                    $this->entities,
-                    function ($entity) use ($field, $value): bool {
-                        return $this->getValueOfProperty($entity, $field) >= $value;
-                    },
-                );
+                return fn ($entVal) => $entVal >= $value;
+            case Comparison::LT:
+                return fn ($entVal) => $entVal < $value;
+            case Comparison::LTE:
+                return fn ($entVal) => $entVal <= $value;
             case Comparison::IN:
-                return array_filter(
-                    $this->entities,
-                    function ($entity) use ($field, $value): bool {
-                        return in_array(
-                            $this->getValueOfProperty($entity, $field),
-                            $value,
-                            true,
-                        );
-                    },
-                );
+                return fn ($entVal) => in_array($entVal, $value, true);
+            case Comparison::NIN:
+                return fn ($entVal) => !in_array($entVal, $value, true);
+            case Comparison::CONTAINS:
+                return fn ($entVal) => str_contains($entVal, $value);
+            // MEMBER_OF
+            case Comparison::STARTS_WITH:
+                return fn ($entVal) => str_starts_with($entVal, $value);
+            case Comparison::ENDS_WITH:
+                return fn ($entVal) => str_ends_with($entVal, $value);
             default:
                 throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         }
     }
-
-    // public const NEQ         = '<>';
-    // public const LT          = '<';
-    // public const LTE         = '<=';
-    // public const GT          = '>';
-    // public const IS          = '='; // no difference with EQ
-    // public const NIN         = 'NIN';
-    // public const CONTAINS    = 'CONTAINS';
-    // public const MEMBER_OF   = 'MEMBER_OF';
-    // public const STARTS_WITH = 'STARTS_WITH';
-    // public const ENDS_WITH   = 'ENDS_WITH';
-    // public function walkValue(Value $value)
-    // {
-    // }
 
     /**
      * @return Entity[]
