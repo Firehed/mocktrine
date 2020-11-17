@@ -53,14 +53,13 @@ class ExpressionMatcher
     public function match(?Expression $expr): array
     {
         if ($expr instanceof Comparison) {
-            $comparitor = $this->walkComparison($expr);
+            $comparitor = $this->matchComparison($expr);
             $entities = array_filter(
                 $this->entities,
                 fn ($e) => $comparitor($this->getValueOfProperty($e, $expr->getField()))
             );
-            // $entities = $this->walkComparison($expr);
         } elseif ($expr instanceof CompositeExpression) {
-            $entities = $this->walkCompositeExpression($expr);
+            $entities = $this->matchCompositeExpression($expr);
         } elseif ($expr instanceof Value) {
             // ??
         } elseif ($expr === null) {
@@ -75,7 +74,7 @@ class ExpressionMatcher
      * @return callable(mixed $entityValue): bool
      * xeturn Entity[]
      */
-    public function walkComparison(Comparison $expr): callable
+    private function matchComparison(Comparison $expr): callable
     {
         // var_dump($expr);
         $field = $expr->getField();
@@ -116,7 +115,7 @@ class ExpressionMatcher
     /**
      * @return Entity[]
      */
-    public function walkCompositeExpression(CompositeExpression $expr): array
+    private function matchCompositeExpression(CompositeExpression $expr): array
     {
         $expressions = $expr->getExpressionList();
         // For each expression in the composite, apply the filtering and gather
