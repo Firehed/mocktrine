@@ -12,6 +12,7 @@ use Firehed\Mocktrine\Entities\GrabBag;
  * @coversDefaultClass Firehed\Mocktrine\ExpressionMatcher
  * @covers ::<protected>
  * @covers ::<private>
+ * @covers ::match
  */
 class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
 {
@@ -70,7 +71,25 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function testEq(): void
+    public function testEqBool(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('boolField', true));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4);
+    }
+
+    public function testEqFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('floatField', 30.5));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1);
+    }
+
+    public function testEqIntForFloat(): void
     {
         $expr = Criteria::expr();
         $crit = Criteria::create()
@@ -79,7 +98,25 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 8, 9);
     }
 
-    public function testNeq(): void
+    public function testNeqBool(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->neq('boolField', true));
+
+        $this->assertCriteriaReturnsIndexes($crit, 5, 6, 7, 8, 9);
+    }
+
+    public function testNeqFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->neq('floatField', 30.5));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 2, 3, 4, 5, 6, 7, 8, 9);
+    }
+
+    public function testNeqIntForFloat(): void
     {
         $expr = Criteria::expr();
         $crit = Criteria::create()
