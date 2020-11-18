@@ -84,10 +84,22 @@ class ExpressionMatcher
             // case Comparison::IS: ?
             case Comparison::EQ:
                 // TODO: float/int casting
-                return fn ($entVal) => $entVal === $value;
+                return function ($entVal) use ($value) {
+                    if (is_float($entVal) && is_int($value)) {
+                        // Perform safe int-to-float cast if the test value
+                        // arrived as an integer and the entity has a float
+                        return $entVal === (float) $value;
+                    }
+                    return $entVal === $value;
+                };
             case Comparison::NEQ:
-                // TODO: float/int casting
-                return fn ($entVal) => $entVal !== $value;
+                return function ($entVal) use ($value) {
+                    // See Comparison::EQ
+                    if (is_float($entVal) && is_int($value)) {
+                        return $entVal !== (float) $value;
+                    }
+                    return $entVal !== $value;
+                };
             case Comparison::GT:
                 return fn ($entVal) => $entVal > $value;
             case Comparison::GTE:
