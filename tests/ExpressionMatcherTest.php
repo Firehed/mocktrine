@@ -178,4 +178,37 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCriteriaReturnsIndexes($crit, 3, 4, 7);
     }
+
+    public function testAndWhere(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('boolField', true))
+            ->andWhere($expr->gt('floatField', 30));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 3);
+    }
+
+    public function testOrWhere(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('boolField', true))
+            ->orWhere($expr->eq('strField', 'hello, goodbye'));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 7);
+    }
+
+    public function testCombinationAndOr(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('boolField', true))
+            ->andWhere($expr->orX(
+                $expr->lt('floatField', 30),
+                $expr->gt('floatField', 30)
+            ));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 2, 3, 4);
+    }
 }
