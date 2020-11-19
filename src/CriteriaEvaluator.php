@@ -20,6 +20,7 @@ use phpDocumentor\Reflection\DocBlockFactory;
 use function array_filter;
 use function array_map;
 use function array_reduce;
+use function array_values;
 use function assert;
 use function get_class;
 use function in_array;
@@ -87,7 +88,7 @@ class CriteriaEvaluator
             $entities = array_slice($entities, 0, $limit);
         }
 
-        return $entities;
+        return array_values($entities);
     }
 
     /**
