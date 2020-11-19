@@ -55,6 +55,8 @@ class CriteriaEvaluator
     /** @var ReflectionClass<Entity> */
     private ReflectionClass $rc;
 
+    /** @var \ReflectionProperty[] */
+    private array $reflectionProperties;
     /**
      * @param class-string<Entity> $className
      * @param Entity[] $entities
@@ -67,6 +69,18 @@ class CriteriaEvaluator
         $this->docblockFactory = DocBlockFactory::createInstance();
 
         $this->entities = $entities;
+
+        foreach ($this->rc->getProperties() as $rp) {
+            $docComment = $rp->getDocComment();
+            assert($docComment !== false);
+
+            $docblock = $this->docblockFactory->create($docComment);
+            // TODO: support other relations
+            if ($docblock->hasTag('Column')) {
+                $rp->setAccessible(true);
+                $this->reflectionProperties[$rp->getName()] = $rp;
+            }
+        }
     }
 
     /**
@@ -230,32 +244,14 @@ class CriteriaEvaluator
      */
     private function getValueOfProperty(object $entity, string $property)
     {
-        if (!$this->rc->hasProperty($property)) {
-            throw new UnexpectedValueException(sprintf(
-                'Property "%s" does not exist on class "%s"',
-                $property,
-                $this->className,
-            ));
-        }
-        $rp = $this->rc->getProperty($property);
-
-        $docComment = $rp->getDocComment();
-        assert($docComment !== false);
-        $docblock = $this->docblockFactory->create($docComment);
-        // TODO: suppport other relations
-        if (!$docblock->hasTag('Column')) {
+        if (!array_key_exists($property, $this->reflectionProperties)) {
             throw new UnexpectedValueException(sprintf(
                 'Property "%s" is not a mapped field on class "%s"',
                 $property,
                 $this->className,
             ));
         }
-
-        // $isAccessible = $rp->isPublic();
-        $rp->setAccessible(true);
-        $propVal = $rp->getValue($entity);
-        // $rp->setAccessible($isAccessible);
-        return $propVal;
+        return $this->reflectionProperties[$property]->getValue($entity);
     }
 
     /**
