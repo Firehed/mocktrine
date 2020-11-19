@@ -131,7 +131,6 @@ class CriteriaEvaluator
         } else {
             throw new DomainException(sprintf('Unknown expression class %s', get_class($expr)));
         }
-        return $entities;
     }
 
     /**
