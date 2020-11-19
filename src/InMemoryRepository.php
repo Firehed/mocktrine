@@ -219,40 +219,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
     }
 
     /**
-     * @param Entity $entity
-     * @return mixed
-     */
-    private function getValueOfProperty(object $entity, string $property)
-    {
-        if (!$this->rc->hasProperty($property)) {
-            throw new UnexpectedValueException(sprintf(
-                'Property "%s" does not exist on class "%s"',
-                $property,
-                $this->getClassName()
-            ));
-        }
-        $rp = $this->rc->getProperty($property);
-
-        $docComment = $rp->getDocComment();
-        assert($docComment !== false);
-        $docblock = $this->docblockFactory->create($docComment);
-        // TODO: suppport other relations
-        if (!$docblock->hasTag('Column')) {
-            throw new UnexpectedValueException(sprintf(
-                'Property "%s" is not a mapped field on class "%s"',
-                $property,
-                $this->getClassName()
-            ));
-        }
-
-        // $isAccessible = $rp->isPublic();
-        $rp->setAccessible(true);
-        $propVal = $rp->getValue($entity);
-        // $rp->setAccessible($isAccessible);
-        return $propVal;
-    }
-
-    /**
      * Searches for an @Id tag on the entity, and returns a tuple containing
      * the associated property name and whether the value is generated.
      *
