@@ -44,38 +44,33 @@ use function str_starts_with;
  */
 class CriteriaEvaluator
 {
+    private static ?DocBlockFactory $docBlockFactory = null;
+
     /** @var class-string<Entity> */
     private string $className;
 
-    private DocBlockFactory $docblockFactory;
-
-    /** @var Entity[] */
-    private array $entities;
-
-    /** @var ReflectionClass<Entity> */
-    private ReflectionClass $rc;
-
     /** @var \ReflectionProperty[] */
     private array $reflectionProperties;
+
     /**
      * @param class-string<Entity> $className
-     * @param Entity[] $entities
      */
-    public function __construct(string $className, array $entities)
+    public function __construct(string $className)
     {
-        $this->rc = new ReflectionClass($className);
+        $rc = new ReflectionClass($className);
         $this->className = $className;
 
-        $this->docblockFactory = DocBlockFactory::createInstance();
+        if (!self::$docBlockFactory) {
+            self::$docBlockFactory = DocBlockFactory::createInstance();
+        }
 
-        $this->entities = $entities;
-
-        foreach ($this->rc->getProperties() as $rp) {
+        foreach ($rc->getProperties() as $rp) {
             $docComment = $rp->getDocComment();
             assert($docComment !== false);
 
-            $docblock = $this->docblockFactory->create($docComment);
+            $docblock = self::$docBlockFactory->create($docComment);
             // TODO: support other relations
+            // TODO: support PHP 8 annotations if Doctrine ORM ends up doing so
             if ($docblock->hasTag('Column')) {
                 $rp->setAccessible(true);
                 $this->reflectionProperties[$rp->getName()] = $rp;
@@ -84,12 +79,13 @@ class CriteriaEvaluator
     }
 
     /**
+     * @param Entity[] $entities
      * @return Entity[]
      */
-    public function evaluate(Criteria $criteria): array
+    public function evaluate(array $entities, Criteria $criteria): array
     {
         $expr = $criteria->getWhereExpression();
-        $entities = $this->match($this->entities, $expr);
+        $entities = $this->match($entities, $expr);
 
         if ($orderings = $criteria->getOrderings()) {
             $entities = $this->sortResults($entities, $orderings);

@@ -222,8 +222,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
-        return (new CriteriaEvaluator($this->getClassName(), $this->managedEntities))
-            ->evaluate($criteria);
+        return (new CriteriaEvaluator($this->getClassName()))
+            ->evaluate($this->managedEntities, $criteria);
     }
 
     /**
