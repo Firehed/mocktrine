@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Collections\{
+    ArrayCollection,
+    Collection,
+    Criteria,
+    Expr,
+    Selectable,
+};
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
+use DomainException;
 use ReflectionClass;
 use TypeError;
 use UnexpectedValueException;
@@ -14,9 +22,11 @@ use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 /**
  * @template Entity of object
+ *
  * @implements ObjectRepository<Entity>
+ * @implements Selectable<array-key, Entity>
  */
-class InMemoryRepository implements ObjectRepository
+class InMemoryRepository implements ObjectRepository, Selectable
 {
     /**
      * @var class-string<Entity>
@@ -187,6 +197,40 @@ class InMemoryRepository implements ObjectRepository
     }
 
     /**
+     * Selectable implementation
+     * {@inheritdoc}
+     */
+    public function matching(Criteria $criteria): Collection
+    {
+        return new ArrayCollection($this->doMatch($criteria));
+    }
+
+    /**
+     * @return Entity[]
+     */
+    private function doMatch(Criteria $criteria): array
+    {
+        $expr = $criteria->getWhereExpression();
+
+        $matcher = new ExpressionMatcher($this->getClassName(), $this->managedEntities);
+        $entities = $matcher->match($expr);
+
+        if ($orderings = $criteria->getOrderings()) {
+            $entities = $this->sortResults($entities, $orderings);
+        }
+
+        if ($offset = $criteria->getFirstResult()) {
+            $entities = array_slice($entities, $offset);
+        }
+
+        if ($limit = $criteria->getMaxResults()) {
+            $entities = array_slice($entities, 0, $limit);
+        }
+
+        return $entities;
+    }
+
+    /**
      * @param Entity $entity
      * @return mixed
      */
@@ -242,13 +286,13 @@ class InMemoryRepository implements ObjectRepository
                 if ($v1 === $v2) {
                     continue;
                 }
-                if ($direction === 'ASC') {
+                if ($direction === Criteria::ASC) {
                     if ($v1 > $v2) {
                         return 1;
                     } else {
                         return -1;
                     }
-                } elseif ($direction === 'DESC') {
+                } elseif ($direction === Criteria::DESC) {
                     if ($v1 < $v2) {
                         return 1;
                     } else {

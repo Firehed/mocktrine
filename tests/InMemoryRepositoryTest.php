@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use Error;
@@ -259,6 +260,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Error::class);
         /**
          * @psalm-suppress InaccessibleProperty
+         * @phpstan-ignore-next-line
          */
         $foundUser->lastName = 'asdf';
     }
@@ -301,6 +303,67 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $this->expectException(UnexpectedValueException::class);
         $repo->findBy([], ['notAColumn' => 'ASC']);
+    }
+
+    /** @covers ::matching */
+    public function testMatching(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('lastName', 'last'));
+
+        $repo = $this->getFixture();
+        $users = $repo->matching($crit)->toArray();
+
+        $this->assertCount(2, $users);
+        foreach ($users as $user) {
+            $this->assertInstanceOf(Entities\User::class, $user);
+            $this->assertSame('last', $user->getLastName());
+        }
+    }
+
+    /** @covers ::matching */
+    public function testComplexMatching(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('lastName', 'last'))
+            ->orWhere($expr->andX(
+                $expr->eq('lastName', 'other'),
+                $expr->eq('email', '4@example.com'),
+            ));
+
+        $repo = $this->getFixture();
+        $users = $repo->matching($crit)->toArray();
+
+        $this->assertCount(3, $users);
+        $this->assertEqualsCanonicalizing([
+            $repo->find(1),
+            $repo->find(2),
+            $repo->find(4),
+        ], $users);
+    }
+    /** @covers ::matching */
+    public function testComplexMatchingWithDuplicates(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->eq('lastName', 'last'))
+            ->orWhere($expr->andX(
+                $expr->eq('lastName', 'other'),
+                $expr->eq('email', '4@example.com'),
+            ))
+            ->orWhere($expr->eq('id', 4));
+
+        $repo = $this->getFixture();
+        $users = $repo->matching($crit)->toArray();
+
+        $this->assertCount(3, $users);
+        $this->assertEqualsCanonicalizing([
+            $repo->find(1),
+            $repo->find(2),
+            $repo->find(4),
+        ], $users);
     }
 
     /**

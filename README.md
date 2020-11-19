@@ -19,7 +19,7 @@ This library aims to provide as much type information as possible, so that stati
 
 ## Supported features
 
-The following methods on Doctrine's EntityManagerInterface should all work as expected:
+The following methods on Doctrine's `EntityManagerInterface` should all work as expected:
 - find
 - persist
 - remove
@@ -29,7 +29,8 @@ The following methods on Doctrine's EntityManagerInterface should all work as ex
 - getCache (will always return `null`)
 - isOpen (will always return `true`)
 
-All methods on the ObjectRepository (for various findBy operations) should also work.
+All methods on the `ObjectRepository` (for various findBy operations) should also work.
+`ObjectRepository` also implements the `Selectable` interface (as `EntityRepository` does, which is the returned type from `EntityManager`), so it's also possible to use the `matching(Criteria)` method.
 
 The following methods are **not** supported at this time:
 - clear
