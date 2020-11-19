@@ -286,6 +286,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
                 $v1 = $this->getValueOfProperty($a, $propName);
                 $v2 = $this->getValueOfProperty($b, $propName);
                 if ($v1 === $v2) {
+                    // Don't return 0 - that's only safe if on the last
+                    // property in the sorting criteria
                     continue;
                 }
                 if ($direction === Criteria::ASC) {
@@ -301,7 +303,10 @@ class InMemoryRepository implements ObjectRepository, Selectable
                         return -1;
                     }
                 } else {
+                    // Should be unreachable
+                    // @codeCoverageIgnoreStart
                     throw ORMException::invalidOrientation($this->getClassName(), $propName);
+                    // @codeCoverageIgnoreEnd
                 }
             }
             // If all loops have exited without returning a comparision
