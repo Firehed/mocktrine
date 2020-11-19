@@ -15,6 +15,19 @@ use ReflectionClass;
 use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
 
+use function array_filter;
+use function array_map;
+use function array_reduce;
+use function assert;
+use function get_class;
+use function in_array;
+use function is_float;
+use function is_int;
+use function sprintf;
+use function str_contains;
+use function str_ends_with;
+use function str_starts_with;
+
 /**
  * @template Entity of object
  *
