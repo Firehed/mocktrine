@@ -30,11 +30,16 @@ use function str_ends_with;
 use function str_starts_with;
 
 /**
+ * This functions similarly to ClosureExpressionVisitor, but uses class
+ * reflection rather than a series of cascading accessor detectors (which are
+ * potentially unsafe and do not translate 1:1 with the ORM's behavior) to find
+ * and compare property values.
+ *
  * @template Entity of object
  *
  * @internal
  */
-class ExpressionMatcher
+class CriteriaEvaluator
 {
     /** @var class-string<Entity> */
     private string $className;
