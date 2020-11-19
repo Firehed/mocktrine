@@ -20,6 +20,14 @@ use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
+use function assert;
+use function count;
+use function current;
+use function is_array;
+use function preg_match;
+use function spl_object_hash;
+use function sprintf;
+
 /**
  * @template Entity of object
  *
