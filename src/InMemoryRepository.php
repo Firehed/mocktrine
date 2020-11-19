@@ -141,33 +141,35 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
     {
-        $result = array_values(array_filter($this->managedEntities, function ($entity) use ($criteria) {
-            foreach ($criteria as $paramName => $paramValue) {
-                $propVal = $this->getValueOfProperty($entity, $paramName);
-                if ($propVal === $paramValue) {
-                    continue;
-                }
-                // If $paramValue is an array, we're simulating `$paramName IN
-                // ($paramValue)`
-                if (is_array($paramValue) && in_array($propVal, $paramValue)) {
-                    continue;
-                }
-                return false;
+        $expr = Criteria::expr();
+        $crit = Criteria::create();
+        foreach ($criteria as $field => $value) {
+            if (is_array($value)) {
+                // Convert list arguments to IN(...)
+                $crit->andWhere($expr->in($field, $value));
+            } else {
+                $crit->andWhere($expr->eq($field, $value));
             }
-            return true;
-        }));
+        }
 
         if ($orderBy) {
-            $result = $this->sortResults($result, $orderBy);
+            // Criteria::orderBy silently converts any invalid inputs to 'DESC'
+            // This pre-validates them
+            foreach ($orderBy as $field => $direction) {
+                if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
+                    throw ORMException::invalidOrientation($this->getClassName(), $field);
+                }
+            }
+            $crit->orderBy($orderBy);
         }
         if ($offset) {
-            $result = array_slice($result, $offset);
+            $crit->setFirstResult($offset);
         }
         if ($limit) {
-            $result = array_slice($result, 0, $limit);
+            $crit->setMaxResults($limit);
         }
 
-        return $result;
+        return $this->doMatch($crit);
     }
 
     /**
