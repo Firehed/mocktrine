@@ -92,14 +92,12 @@ class ExpressionMatcher
      */
     private function matchComparison(Comparison $expr): callable
     {
-        // var_dump($expr);
         $field = $expr->getField();
         $value = $expr->getValue()->getValue(); // Unwrap it
 
         switch ($expr->getOperator()) {
             // case Comparison::IS: ?
             case Comparison::EQ:
-                // TODO: float/int casting
                 return function ($entVal) use ($value) {
                     if (is_float($entVal) && is_int($value)) {
                         // Perform safe int-to-float cast if the test value
@@ -130,7 +128,7 @@ class ExpressionMatcher
                 return fn ($entVal) => !in_array($entVal, $value, true);
             case Comparison::CONTAINS:
                 return fn ($entVal) => str_contains($entVal, $value);
-            // MEMBER_OF
+            // TODO: case MEMBER_OF:
             case Comparison::STARTS_WITH:
                 return fn ($entVal) => str_starts_with($entVal, $value);
             case Comparison::ENDS_WITH:

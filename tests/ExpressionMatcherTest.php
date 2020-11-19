@@ -50,7 +50,6 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
     {
         $actual = $this->repo->matching($criteria)->toArray();
         $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
-        // print_R($expected);
         // Can't use assertEqualsCanonicalizing due to its internals. If it's
         // changed or assertSameCanonicalizing is added, this should be able to
         // use it instead.
@@ -164,6 +163,7 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
 
     public function testIsNull(): void
     {
+        $this->markTestSkipped('Need nullable fields first');
     }
 
     public function testIn(): void
