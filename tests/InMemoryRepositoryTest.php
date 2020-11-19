@@ -61,7 +61,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $results = $repo->findBy(['lastName' => 'last']);
         $this->assertIsArray($results);
-        $this->assertCount(2, $results);
+        $this->assertResultSizeAndIndexValidity(2, $results);
         usort($results, function ($a, $b) {
             return $a->getEmail() <=> $b->getEmail();
         });
@@ -77,7 +77,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
             'email' => ['1@example.com', '3@example.com'],
         ]);
         $this->assertIsArray($results);
-        $this->assertCount(2, $results);
+        $this->assertResultSizeAndIndexValidity(2, $results);
         usort($results, function ($a, $b) {
             return $a->getEmail() <=> $b->getEmail();
         });
@@ -90,7 +90,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['lastName' => 'ASC', 'email' => 'DESC']);
-        $this->assertCount(5, $results);
+        $this->assertResultSizeAndIndexValidity(5, $results);
         $this->assertSame('2@example.com', $results[0]->getEmail());
         $this->assertSame('1@example.com', $results[1]->getEmail());
         $this->assertSame('5@example.com', $results[2]->getEmail());
@@ -103,7 +103,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], 2);
-        $this->assertCount(2, $results);
+        $this->assertResultSizeAndIndexValidity(2, $results);
         $this->assertSame('1@example.com', $results[0]->getEmail());
         $this->assertSame('2@example.com', $results[1]->getEmail());
     }
@@ -113,7 +113,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], 10);
-        $this->assertCount(5, $results);
+        $this->assertResultSizeAndIndexValidity(5, $results);
         $this->assertSame('1@example.com', $results[0]->getEmail());
         $this->assertSame('2@example.com', $results[1]->getEmail());
         $this->assertSame('3@example.com', $results[2]->getEmail());
@@ -126,7 +126,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], null, 2);
-        $this->assertCount(3, $results);
+        $this->assertResultSizeAndIndexValidity(3, $results);
         $this->assertSame('3@example.com', $results[0]->getEmail());
         $this->assertSame('4@example.com', $results[1]->getEmail());
         $this->assertSame('5@example.com', $results[2]->getEmail());
@@ -137,7 +137,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], null, 10);
-        $this->assertCount(0, $results);
+        $this->assertResultSizeAndIndexValidity(0, $results);
     }
 
     /** @covers ::findBy */
@@ -145,7 +145,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], 2, 2);
-        $this->assertCount(2, $results);
+        $this->assertResultSizeAndIndexValidity(2, $results);
         $this->assertSame('3@example.com', $results[0]->getEmail());
         $this->assertSame('4@example.com', $results[1]->getEmail());
     }
@@ -155,7 +155,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], 2, 4);
-        $this->assertCount(1, $results);
+        $this->assertResultSizeAndIndexValidity(1, $results);
         $this->assertSame('5@example.com', $results[0]->getEmail());
     }
 
@@ -164,7 +164,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $results = $repo->findBy([], ['email' => 'ASC'], 2, 10);
-        $this->assertCount(0, $results);
+        $this->assertResultSizeAndIndexValidity(0, $results);
     }
 
 
@@ -214,7 +214,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $all = $repo->findAll();
-        $this->assertCount(5, $all);
+        $this->assertResultSizeAndIndexValidity(5, $all);
     }
 
     // Tests for internals
@@ -255,7 +255,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $user = new Entities\User('user@example.com', 'lastname');
         $repo->manage($user);
         $found = $repo->findAll();
-        $this->assertCount(1, $found);
+        $this->assertResultSizeAndIndexValidity(1, $found);
         $foundUser = current($found);
         $this->expectException(Error::class);
         /**
@@ -315,7 +315,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $users = $repo->matching($crit)->toArray();
 
-        $this->assertCount(2, $users);
+        $this->assertResultSizeAndIndexValidity(2, $users);
         foreach ($users as $user) {
             $this->assertInstanceOf(Entities\User::class, $user);
             $this->assertSame('last', $user->getLastName());
@@ -336,7 +336,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $users = $repo->matching($crit)->toArray();
 
-        $this->assertCount(3, $users);
+        $this->assertResultSizeAndIndexValidity(3, $users);
         $this->assertEqualsCanonicalizing([
             $repo->find(1),
             $repo->find(2),
@@ -358,7 +358,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $users = $repo->matching($crit)->toArray();
 
-        $this->assertCount(3, $users);
+        $this->assertResultSizeAndIndexValidity(3, $users);
         $this->assertEqualsCanonicalizing([
             $repo->find(1),
             $repo->find(2),
@@ -378,5 +378,18 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->manage(new Entities\User('4@example.com', 'other', 4));
         $repo->manage(new Entities\User('5@example.com', 'other', 5));
         return $repo;
+    }
+
+    /**
+     * @param mixed[] $results
+     */
+    private function assertResultSizeAndIndexValidity(int $expectedSize, array $results): void
+    {
+        $this->assertCount($expectedSize, $results);
+        // Check that the results are list-formated and don't have weird
+        // indexes or gaps
+        for ($i = 0; $i < $expectedSize; $i++) {
+            $this->assertArrayHasKey($i, $results);
+        }
     }
 }
