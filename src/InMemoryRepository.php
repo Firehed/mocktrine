@@ -27,6 +27,8 @@ use function is_array;
 use function preg_match;
 use function spl_object_hash;
 use function sprintf;
+use function strtoupper;
+use function trim;
 
 /**
  * @template Entity of object
@@ -164,6 +166,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
             // Criteria::orderBy silently converts any invalid inputs to 'DESC'
             // This pre-validates them
             foreach ($orderBy as $field => $direction) {
+                $direction = strtoupper(trim($direction));
                 if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
                     throw ORMException::invalidOrientation($this->getClassName(), $field);
                 }
