@@ -20,6 +20,9 @@ use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
+use function strtoupper;
+use function trim;
+
 /**
  * @template Entity of object
  *
@@ -156,6 +159,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
             // Criteria::orderBy silently converts any invalid inputs to 'DESC'
             // This pre-validates them
             foreach ($orderBy as $field => $direction) {
+                $direction = strtoupper(trim($direction));
                 if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
                     throw ORMException::invalidOrientation($this->getClassName(), $field);
                 }

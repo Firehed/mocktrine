@@ -99,6 +99,19 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @covers ::findBy */
+    public function testFindBySortingIsCaseInsensitive(): void
+    {
+        $repo = $this->getFixture();
+        $results = $repo->findBy([], ['lastName' => 'asc', 'email' => 'dEsC']);
+        $this->assertResultSizeAndIndexValidity(5, $results);
+        $this->assertSame('2@example.com', $results[0]->getEmail());
+        $this->assertSame('1@example.com', $results[1]->getEmail());
+        $this->assertSame('5@example.com', $results[2]->getEmail());
+        $this->assertSame('4@example.com', $results[3]->getEmail());
+        $this->assertSame('3@example.com', $results[4]->getEmail());
+    }
+
+    /** @covers ::findBy */
     public function testFindByWithLimit(): void
     {
         $repo = $this->getFixture();
