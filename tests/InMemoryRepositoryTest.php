@@ -260,6 +260,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Error::class);
         /**
          * @psalm-suppress InaccessibleProperty
+         * @phpstan-ignore-next-line
          */
         $foundUser->lastName = 'asdf';
     }
