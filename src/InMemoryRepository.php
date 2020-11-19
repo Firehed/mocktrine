@@ -202,6 +202,14 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function matching(Criteria $criteria): Collection
     {
+        return new ArrayCollection($this->doMatch($criteria));
+    }
+
+    /**
+     * @return Entity[]
+     */
+    private function doMatch(Criteria $criteria): array
+    {
         $expr = $criteria->getWhereExpression();
 
         $matcher = new ExpressionMatcher($this->getClassName(), $this->managedEntities);
@@ -211,7 +219,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
 
         // sort them
 
-        return new ArrayCollection($entities);
+        return $entities;
     }
 
     /**
