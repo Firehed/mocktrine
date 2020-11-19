@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use BadMethodCallException;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\{
     Comparison,
     CompositeExpression,
@@ -30,11 +31,16 @@ use function str_ends_with;
 use function str_starts_with;
 
 /**
+ * This functions similarly to ClosureExpressionVisitor, but uses class
+ * reflection rather than a series of cascading accessor detectors (which are
+ * potentially unsafe and do not translate 1:1 with the ORM's behavior) to find
+ * and compare property values.
+ *
  * @template Entity of object
  *
  * @internal
  */
-class ExpressionMatcher
+class CriteriaEvaluator
 {
     /** @var class-string<Entity> */
     private string $className;
@@ -64,7 +70,32 @@ class ExpressionMatcher
     /**
      * @return Entity[]
      */
-    public function match(?Expression $expr): array
+    public function evaluate(Criteria $criteria): array
+    {
+        $expr = $criteria->getWhereExpression();
+        $entities = $this->match($expr);
+
+        if ($orderings = $criteria->getOrderings()) {
+            $entities = $this->sortResults($entities, $orderings);
+        }
+
+        if ($offset = $criteria->getFirstResult()) {
+            $entities = array_slice($entities, $offset);
+        }
+
+        if ($limit = $criteria->getMaxResults()) {
+            $entities = array_slice($entities, 0, $limit);
+        }
+
+        return $entities;
+    }
+
+    /**
+     * Evaluates the where expression of the criteria
+     *
+     * @return Entity[]
+     */
+    private function match(?Expression $expr): array
     {
         if ($expr instanceof Comparison) {
             $comparitor = $this->matchComparison($expr);
@@ -184,8 +215,6 @@ class ExpressionMatcher
     }
 
     /**
-     * FIXME: copied from InMemoryRepository
-     *
      * @param Entity $entity
      * @return mixed
      */
@@ -217,5 +246,55 @@ class ExpressionMatcher
         $propVal = $rp->getValue($entity);
         // $rp->setAccessible($isAccessible);
         return $propVal;
+    }
+
+    /**
+     * @param Entity[] $results
+     * @param array<string, string> $orderBy (actually
+     * Criteria::ASC|Criteria:::DESC but the PHPStan annotations won't work)
+     * @return Entity[]
+     */
+    private function sortResults(array $results, array $orderBy): array
+    {
+        // WARNING: this has the potential to get quite slow due to the use
+        // of reflection on TWO entities on every single comparision. On
+        // typical test datasets this is unlikely to be a major issue, but
+        // it's quite inefficient and should be re-examined in the future.
+        /**
+         * @param Entity $a
+         * @param Entity $b
+         */
+        usort($results, function ($a, $b) use ($orderBy) {
+            foreach ($orderBy as $propName => $direction) {
+                $v1 = $this->getValueOfProperty($a, $propName);
+                $v2 = $this->getValueOfProperty($b, $propName);
+                if ($v1 === $v2) {
+                    // Don't return 0 - that's only safe if on the last
+                    // property in the sorting criteria
+                    continue;
+                }
+                if ($direction === Criteria::ASC) {
+                    if ($v1 > $v2) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } elseif ($direction === Criteria::DESC) {
+                    if ($v1 < $v2) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } else {
+                    // @codeCoverageIgnoreStart
+                    throw new DomainException(sprintf('Unhandled direction %s', $direction));
+                    // @codeCoverageIgnoreEnd
+                }
+            }
+            // If all loops have exited without returning a comparision
+            // result, all of the sort properties should be equal.
+            return 0;
+        });
+        return $results;
     }
 }
