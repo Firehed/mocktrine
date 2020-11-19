@@ -76,7 +76,6 @@ class CriteriaEvaluator
         $entities = $this->match($expr);
 
         if ($orderings = $criteria->getOrderings()) {
-            /** @var array<string, Criteria::ASC|Criteria::DESC> $orderings */
             $entities = $this->sortResults($entities, $orderings);
         }
 
@@ -251,7 +250,8 @@ class CriteriaEvaluator
 
     /**
      * @param Entity[] $results
-     * @param array<array-key, Criteria::ASC|Criteria::DESC> $orderBy
+     * @param array<string, string> $orderBy (actually
+     * Criteria::ASC|Criteria:::DESC but the PHPStan annotations won't work)
      * @return Entity[]
      */
     private function sortResults(array $results, array $orderBy): array
@@ -285,6 +285,10 @@ class CriteriaEvaluator
                     } else {
                         return -1;
                     }
+                } else {
+                    // @codeCoverageIgnoreStart
+                    throw new DomainException(sprintf('Unhandled direction %s', $direction));
+                    // @codeCoverageIgnoreEnd
                 }
             }
             // If all loops have exited without returning a comparision
