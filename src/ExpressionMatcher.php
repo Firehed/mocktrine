@@ -132,9 +132,11 @@ class ExpressionMatcher
                 return fn ($entVal) => str_starts_with($entVal, $value);
             case Comparison::ENDS_WITH:
                 return fn ($entVal) => str_ends_with($entVal, $value);
-            default:
-                throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         }
+        // Should be unreachable
+        // @codeCoverageIgnoreStart
+        throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -152,34 +154,32 @@ class ExpressionMatcher
         // - AND returns only the items in every set (by strict comparision)
         // - OR returns the unique set of items across all sets
         $type = $expr->getType();
-        if ($type === CompositeExpression::TYPE_AND) {
-            // Conceptually, this is expressed by:
-            // $inAllSets = array_intersect(...$filteredEntitySets);
-            // but array_intersect stringifies each item and can't be used here.
-            return array_reduce(
-                $filteredEntitySets,
-                function ($carry, $item) {
-                    // First pass
-                    if ($carry === null) {
-                        return $item;
-                    }
-                    return array_filter(
-                        $carry,
-                        fn ($itemInCarry) => in_array($itemInCarry, $item, true),
-                    );
-                    // var_dump($carry);
-                    // var_dump($item);
-                    // return $carry;
-                },
-                // [],
-            );
-        } elseif ($type === CompositeExpression::TYPE_OR) {
-            return array_reduce($filteredEntitySets, 'array_merge', []);
-        } else {
-            throw new DomainException('Recived unhandled expression $type');
+        switch ($type) {
+            case CompositeExpression::TYPE_AND:
+                // Conceptually, this is expressed by:
+                // $inAllSets = array_intersect(...$filteredEntitySets);
+                // but array_intersect stringifies each item and can't be used here.
+                return array_reduce(
+                    $filteredEntitySets,
+                    function ($carry, $item) {
+                        // First pass
+                        if ($carry === null) {
+                            return $item;
+                        }
+                        return array_filter(
+                            $carry,
+                            fn ($itemInCarry) => in_array($itemInCarry, $item, true),
+                        );
+                    },
+                );
+            case CompositeExpression::TYPE_OR:
+                return array_reduce($filteredEntitySets, 'array_merge', []);
+            default:
+                // Should be unreachable
+                // @codeCoverageIgnoreStart
+                throw new DomainException(sprintf('Unhandled composite expression type %s', $type));
+                // @codeCoverageIgnoreEnd
         }
-
-        // print_r($filteredEntitySets);
     }
 
     /**
