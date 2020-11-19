@@ -215,9 +215,17 @@ class InMemoryRepository implements ObjectRepository, Selectable
         $matcher = new ExpressionMatcher($this->getClassName(), $this->managedEntities);
         $entities = $matcher->match($expr);
 
-        // var_dump($entities);
+        if ($orderings = $criteria->getOrderings()) {
+            $entities = $this->sortResults($entities, $orderings);
+        }
 
-        // sort them
+        if ($offset = $criteria->getFirstResult()) {
+            $entities = array_slice($entities, $offset);
+        }
+
+        if ($limit = $criteria->getMaxResults()) {
+            $entities = array_slice($entities, 0, $limit);
+        }
 
         return $entities;
     }
@@ -278,13 +286,13 @@ class InMemoryRepository implements ObjectRepository, Selectable
                 if ($v1 === $v2) {
                     continue;
                 }
-                if ($direction === 'ASC') {
+                if ($direction === Criteria::ASC) {
                     if ($v1 > $v2) {
                         return 1;
                     } else {
                         return -1;
                     }
-                } elseif ($direction === 'DESC') {
+                } elseif ($direction === Criteria::DESC) {
                     if ($v1 < $v2) {
                         return 1;
                     } else {

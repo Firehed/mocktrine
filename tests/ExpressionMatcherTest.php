@@ -249,4 +249,24 @@ class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCriteriaReturnsIndexes($crit, 1, 2, 3, 4);
     }
+
+    public function testOnlyOrderBy(): void
+    {
+        $crit = Criteria::create()
+            ->orderBy([
+                'floatField' => Criteria::DESC,
+            ]);
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    }
+
+    public function testOnlyLimits(): void
+    {
+        $crit = Criteria::create()
+            ->orderBy(['floatField' => Criteria::ASC])
+            ->setFirstResult(2)
+            ->setMaxResults(5);
+
+        $this->assertCriteriaReturnsIndexes($crit, 4, 2, 0, 8, 9);
+    }
 }
