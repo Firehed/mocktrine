@@ -13,7 +13,7 @@ use Firehed\Mocktrine\Entities\GrabBag;
  * @covers ::<protected>
  * @covers ::<private>
  * @covers ::__construct
- * @covers ::match
+ * @covers ::evaluate
  */
 class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
