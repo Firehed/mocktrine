@@ -366,6 +366,17 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         ], $users);
     }
 
+    public function testFindByResultIndexesAreValid(): void
+    {
+        $result = $this->getFixture()
+            ->findBy(['lastName' => 'other']);
+
+        $this->assertCount(3, $result);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayHasKey(1, $result);
+        $this->assertArrayHasKey(2, $result);
+    }
+
     /**
      * @return InMemoryRepository<Entities\User>
      */
