@@ -222,6 +222,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
+        // @phpstan-ignore-next-line (see #3273)
         return CriteriaEvaluatorFactory::getInstance($this->getClassName())
             ->evaluate($this->managedEntities, $criteria);
     }
