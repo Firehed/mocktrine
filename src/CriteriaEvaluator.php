@@ -75,7 +75,7 @@ class CriteriaEvaluator
     public function evaluate(Criteria $criteria): array
     {
         $expr = $criteria->getWhereExpression();
-        $entities = $this->match($expr);
+        $entities = $this->match($this->entities, $expr);
 
         if ($orderings = $criteria->getOrderings()) {
             $entities = $this->sortResults($entities, $orderings);
@@ -95,24 +95,25 @@ class CriteriaEvaluator
     /**
      * Evaluates the where expression of the criteria
      *
+     * @param Entity[] $entities
      * @return Entity[]
      */
-    private function match(?Expression $expr): array
+    private function match(array $entities, ?Expression $expr): array
     {
         if ($expr instanceof Comparison) {
             $comparitor = $this->matchComparison($expr);
-            $entities = array_filter(
-                $this->entities,
+            return array_filter(
+                $entities,
                 fn ($e) => $comparitor($this->getValueOfProperty($e, $expr->getField()))
             );
         } elseif ($expr instanceof CompositeExpression) {
-            $entities = $this->matchCompositeExpression($expr);
+            return $this->matchCompositeExpression($entities, $expr);
         } elseif ($expr instanceof Value) {
             throw new BadMethodCallException(
                 'match() called with Expr\Value. Please file a bug including the criteria used.'
             );
         } elseif ($expr === null) {
-            $entities = $this->entities;
+            return $entities;
         } else {
             throw new DomainException(sprintf('Unknown expression class %s', get_class($expr)));
         }
@@ -174,46 +175,53 @@ class CriteriaEvaluator
     }
 
     /**
+     * @param Entity[] $entities
      * @return Entity[]
      */
-    private function matchCompositeExpression(CompositeExpression $expr): array
+    private function matchCompositeExpression(array $entities, CompositeExpression $expr): array
     {
-        $expressions = $expr->getExpressionList();
-        // For each expression in the composite, apply the filtering and gather
-        // the results.
-        $filteredEntitySets = array_map([$this, 'match'], $expressions);
-
-        // Reduce the result sets to a single result set based on the
-        // expression type:
-        // - AND returns only the items in every set (by strict comparision)
-        // - OR returns the unique set of items across all sets
         $type = $expr->getType();
         switch ($type) {
             case CompositeExpression::TYPE_AND:
-                // Conceptually, this is expressed by:
-                // $inAllSets = array_intersect(...$filteredEntitySets);
-                // but array_intersect stringifies each item and can't be used here.
-                return array_reduce(
-                    $filteredEntitySets,
-                    function ($carry, $item) {
-                        // First pass
-                        if ($carry === null) {
-                            return $item;
-                        }
-                        return array_filter(
-                            $carry,
-                            fn ($itemInCarry) => in_array($itemInCarry, $item, true),
-                        );
-                    },
-                );
+                return $this->matchCompositeAndExpression($entities, $expr);
             case CompositeExpression::TYPE_OR:
-                return array_reduce($filteredEntitySets, 'array_merge', []);
+                return $this->matchCompositeOrExpression($entities, $expr);
             default:
                 // Should be unreachable
                 // @codeCoverageIgnoreStart
                 throw new DomainException(sprintf('Unhandled composite expression type %s', $type));
                 // @codeCoverageIgnoreEnd
         }
+    }
+
+    /**
+     * @param Entity[] $entities
+     * @return Entity[]
+     */
+    private function matchCompositeOrExpression(array $entities, CompositeExpression $expr): array
+    {
+        $expressions = $expr->getExpressionList();
+        // For each expression in the composite, apply the filtering and gather
+        // the results.
+        $filteredEntitySets = array_map(fn ($expr) => $this->match($entities, $expr), $expressions);
+
+        return array_reduce($filteredEntitySets, 'array_merge', []);
+    }
+
+    /**
+     * @param Entity[] $entities
+     * @return Entity[]
+     */
+    private function matchCompositeAndExpression(array $entities, CompositeExpression $expr): array
+    {
+        $expressions = $expr->getExpressionList();
+        // This is effectively a reduce operation by intersecting the results
+        // of mapping match across the entities, but instead iterative reduces
+        // the set to match for performance reasons.
+        foreach ($expressions as $expression) {
+            $entities = $this->match($entities, $expression);
+        }
+        return $entities;
     }
 
     /**
