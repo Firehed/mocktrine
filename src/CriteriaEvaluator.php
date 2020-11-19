@@ -20,6 +20,7 @@ use phpDocumentor\Reflection\DocBlockFactory;
 use function array_filter;
 use function array_map;
 use function array_reduce;
+use function array_slice;
 use function array_values;
 use function assert;
 use function get_class;
