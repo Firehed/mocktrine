@@ -12,13 +12,6 @@ use DateTimeInterface;
  */
 class GrabBag
 {
-    /*
-     * @Id
-     * @Column(type="integer")
-     * @GeneratedValue
-     */
-    // private ?int $id = null;
-
     /**
      * @Column(name="bool_field", type="boolean")
      */
