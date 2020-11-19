@@ -12,6 +12,7 @@ use Firehed\Mocktrine\Entities\GrabBag;
  * @coversDefaultClass Firehed\Mocktrine\ExpressionMatcher
  * @covers ::<protected>
  * @covers ::<private>
+ * @covers ::__construct
  * @covers ::match
  */
 class ExpressionMatcherTest extends \PHPUnit\Framework\TestCase
