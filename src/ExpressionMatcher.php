@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use BadMethodCallException;
 use Doctrine\Common\Collections\Expr\{
     Comparison,
     CompositeExpression,
@@ -74,7 +75,9 @@ class ExpressionMatcher
         } elseif ($expr instanceof CompositeExpression) {
             $entities = $this->matchCompositeExpression($expr);
         } elseif ($expr instanceof Value) {
-            // ??
+            throw new BadMethodCallException(
+                'match() called with Expr\Value. Please file a bug including the criteria used.'
+            );
         } elseif ($expr === null) {
             $entities = $this->entities;
         } else {
