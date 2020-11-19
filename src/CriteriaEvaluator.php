@@ -216,8 +216,6 @@ class CriteriaEvaluator
     }
 
     /**
-     * FIXME: copied from InMemoryRepository
-     *
      * @param Entity $entity
      * @return mixed
      */
