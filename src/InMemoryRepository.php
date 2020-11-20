@@ -20,6 +20,13 @@ use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
+use function assert;
+use function count;
+use function current;
+use function is_array;
+use function preg_match;
+use function spl_object_hash;
+use function sprintf;
 use function strtoupper;
 use function trim;
 
@@ -218,8 +225,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
-        return (new CriteriaEvaluator($this->getClassName(), $this->managedEntities))
-            ->evaluate($criteria);
+        // @phpstan-ignore-next-line (see #3273)
+        return CriteriaEvaluatorFactory::getInstance($this->getClassName())
+            ->evaluate($this->managedEntities, $criteria);
     }
 
     /**
