@@ -318,6 +318,14 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy([], ['notAColumn' => 'ASC']);
     }
 
+    /** @covers ::findBy */
+    public function testSortingOnNonColumnFieldThrowsWithNoResults(): void
+    {
+        $repo = $this->getFixture();
+        $this->expectException(UnexpectedValueException::class);
+        $repo->findBy(['lastName' => 'noMatch'], ['notAColumn' => 'desc']);
+    }
+
     /** @covers ::matching */
     public function testMatching(): void
     {

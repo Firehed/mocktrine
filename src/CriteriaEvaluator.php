@@ -257,6 +257,17 @@ class CriteriaEvaluator
      */
     private function sortResults(array $results, array $orderBy): array
     {
+        // Baseline check for correct field mapping of ORDER BY clauses since
+        // they won't be checked if usort no-ops on <2 results
+        foreach ($orderBy as $property => $_) {
+            if (!array_key_exists($property, $this->reflectionProperties)) {
+                throw new UnexpectedValueException(sprintf(
+                    'Sort field "%s" is not a mapped field on class "%s"',
+                    $property,
+                    $this->className,
+                ));
+            }
+        }
         // WARNING: this has the potential to get quite slow due to the use
         // of reflection on TWO entities on every single comparision. On
         // typical test datasets this is unlikely to be a major issue, but
