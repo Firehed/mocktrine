@@ -20,8 +20,3 @@ parameters:
 			count: 1
 			path: tests/InMemoryEntityManagerTest.php
 
-		-
-			message: "#^Unable to resolve the template type ExpectedType in call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\)$#"
-			count: 1
-			path: tests/InMemoryEntityManagerTest.php
-
