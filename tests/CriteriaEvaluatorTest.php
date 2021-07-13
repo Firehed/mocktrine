@@ -10,11 +10,7 @@ use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\CriteriaEvaluator
- * @covers ::<protected>
- * @covers ::<private>
- * @covers ::__construct
- * @covers ::evaluate
+ * @covers Firehed\Mocktrine\CriteriaEvaluator
  */
 class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
