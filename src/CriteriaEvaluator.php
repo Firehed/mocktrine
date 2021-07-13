@@ -55,6 +55,7 @@ class CriteriaEvaluator
      */
     public function __construct(ClassMetadata $metadata)
     {
+        $this->metadata = $metadata;
         $className = $metadata->getName();
         $rc = new ReflectionClass($className);
         foreach ($metadata->getFieldNames() as $fieldName) {
@@ -62,8 +63,6 @@ class CriteriaEvaluator
             $rp->setAccessible(true);
             $this->reflectionProperties[$fieldName] = $rp;
         }
-        // print_r($this->reflectionProperties);
-        // print_r($md->getAssociationNames());
     }
 
     /**
@@ -231,7 +230,7 @@ class CriteriaEvaluator
             throw new UnexpectedValueException(sprintf(
                 'Property "%s" is not a mapped field on class "%s"',
                 $property,
-                $this->className,
+                $this->metadata->getName(),
             ));
         }
         return $this->reflectionProperties[$property]->getValue($entity);
@@ -252,7 +251,7 @@ class CriteriaEvaluator
                 throw new UnexpectedValueException(sprintf(
                     'Sort field "%s" is not a mapped field on class "%s"',
                     $property,
-                    $this->className,
+                    $this->metadata->getName(),
                 ));
             }
         }
