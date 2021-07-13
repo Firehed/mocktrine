@@ -15,7 +15,7 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
     {
         $md = $this->createMock(ClassMetadata::class);
         $md->method('getName')->willReturn(Entities\GrabBag::class);
-        $md->method('getFieldNames')->willReturn([]);
+        $md->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
 
         $ce1 = CriteriaEvaluatorFactory::getInstance($md);
         $ce2 = CriteriaEvaluatorFactory::getInstance($md);
@@ -31,11 +31,11 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
     {
         $md1 = $this->createMock(ClassMetadata::class);
         $md1->method('getName')->willReturn(Entities\GrabBag::class);
-        $md1->method('getFieldNames')->willReturn([]);
+        $md1->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
 
         $md2 = $this->createMock(ClassMetadata::class);
         $md2->method('getName')->willReturn(Entities\User::class);
-        $md2->method('getFieldNames')->willReturn([]);
+        $md2->method('getFieldNames')->willReturn(['id', 'email', 'active', 'lastName']);
 
         $ce1 = CriteriaEvaluatorFactory::getInstance($md1);
         $ce2 = CriteriaEvaluatorFactory::getInstance($md2);
