@@ -15,7 +15,6 @@ use Doctrine\Common\Collections\Expr\{
 use DomainException;
 use ReflectionClass;
 use UnexpectedValueException;
-use phpDocumentor\Reflection\DocBlockFactory;
 
 use function array_filter;
 use function array_map;
@@ -32,6 +31,10 @@ use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+
 /**
  * This functions similarly to ClosureExpressionVisitor, but uses class
  * reflection rather than a series of cascading accessor detectors (which are
@@ -44,8 +47,6 @@ use function str_starts_with;
  */
 class CriteriaEvaluator
 {
-    private static ?DocBlockFactory $docBlockFactory = null;
-
     /** @var class-string<Entity> */
     private string $className;
 
@@ -57,25 +58,33 @@ class CriteriaEvaluator
      */
     public function __construct(string $className)
     {
-        $rc = new ReflectionClass($className);
         $this->className = $className;
 
-        if (!self::$docBlockFactory) {
-            self::$docBlockFactory = DocBlockFactory::createInstance();
+        $reader = new AnnotationReader(); // I:Doctrine\Common\Annotations\Reader
+        if (true) { // useSimpleblah
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
         }
+        $driver = new AnnotationDriver($reader, '.');
 
-        foreach ($rc->getProperties() as $rp) {
-            $docComment = $rp->getDocComment();
-            assert($docComment !== false);
+        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\AnnotationDriver);
+        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\MappingDriver);
 
-            $docblock = self::$docBlockFactory->create($docComment);
-            // TODO: support other relations
-            // TODO: support PHP 8 annotations if Doctrine ORM ends up doing so
-            if ($docblock->hasTag('Column')) {
-                $rp->setAccessible(true);
-                $this->reflectionProperties[$rp->getName()] = $rp;
-            }
+        $md = new \Doctrine\ORM\Mapping\ClassMetadata(
+            $this->className,
+            //, $this->em->getConfiguration()->getNamingStrategy()
+        );
+        assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);    
+        $driver->loadMetadataForClass($this->className, $md);
+        // $md->getReflectionClass() returns null here for some reason
+        $rc = new ReflectionClass($className);
+        foreach ($md->getFieldNames() as $fieldName) {
+            $rp = $rc->getProperty($fieldName);
+            $rp->setAccessible(true);
+            $this->reflectionProperties[$fieldName] = $rp;
         }
+        // print_r($this->reflectionProperties);
+        print_r($md->getAssociationNames());
     }
 
     /**

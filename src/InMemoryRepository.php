@@ -20,6 +20,10 @@ use UnexpectedValueException;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+
 use function assert;
 use function count;
 use function current;
@@ -67,7 +71,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
     public function __construct(string $fqcn)
     {
         $this->className = $fqcn;
-        $this->docblockFactory = DocBlockFactory::createInstance();
+        // $this->docblockFactory = DocBlockFactory::createInstance();
         $this->rc = new ReflectionClass($fqcn);
         [
             $this->idField,
@@ -238,6 +242,38 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     private function findIdField(): array
     {
+
+        $reader = new AnnotationReader(); // I:Doctrine\Common\Annotations\Reader
+        if (true) { // useSimpleblah
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
+        }
+        $driver = new AnnotationDriver($reader, '.');
+
+        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\AnnotationDriver);
+        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\MappingDriver);
+
+        $md = new \Doctrine\ORM\Mapping\ClassMetadata(
+            $this->className, null
+            //, $this->em->getConfiguration()->getNamingStrategy()
+        );
+        assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
+        $driver->loadMetadataForClass($this->className, $md);
+        // print_r($driver);
+        $ids = $md->getIdentifier();
+        // Entity does not have an id field!
+        if (count($ids) === 0) {
+            return [null, null, false];
+        }
+        assert(count($ids) === 1);
+
+        $idField = $ids[0];
+        return [
+            $idField,
+            $md->getTypeOfField($idField),
+            $md->usesIdGenerator(),
+        ];
+
         foreach ($this->rc->getProperties() as $reflectionProp) {
             $docComment = $reflectionProp->getDocComment();
             assert($docComment !== false);
