@@ -15,8 +15,3 @@ parameters:
 			count: 1
 			path: src/InMemoryEntityManager.php
 
-		-
-			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with null and 'Id should be…' will always evaluate to false\\.$#"
-			count: 1
-			path: tests/InMemoryEntityManagerTest.php
-

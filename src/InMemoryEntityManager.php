@@ -19,10 +19,12 @@ use Doctrine\ORM\{
 };
 use Doctrine\ORM\Mapping\{
     Driver\AnnotationDriver,
+};
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\{
     ClassMetadata,
     ClassMetadataFactory,
 };
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use RuntimeException;
 
 class InMemoryEntityManager implements EntityManagerInterface
@@ -277,7 +279,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the metadata factory used to gather the metadata of classes.
      *
-     * @return ClassMetadataFactory
+     * @return ClassMetadataFactory<ClassMetadata<object>>
      */
     public function getMetadataFactory()
     {
