@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\{
     Expr,
     Selectable,
 };
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
@@ -52,6 +53,12 @@ class InMemoryRepository implements ObjectRepository, Selectable
     private $managedEntities = [];
 
     private MappingDriver $mappingDriver;
+
+    /**
+     * @var ClassMetadata<Entity>
+     */
+    private ClassMetadata $metadata;
+
     /**
      * @param class-string<Entity> $fqcn
      */
@@ -215,8 +222,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
-        // @phpstan-ignore-next-line (see #3273)
-        return CriteriaEvaluatorFactory::getInstance($this->getClassName())
+        return CriteriaEvaluatorFactory::getInstance($this->metadata)
             ->evaluate($this->managedEntities, $criteria);
     }
 
@@ -232,7 +238,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
             $this->className,
             //, $this->em->getConfiguration()->getNamingStrategy()
         );
-        assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
+        // assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
+        $this->metadata = $md;
         $this->mappingDriver->loadMetadataForClass($this->className, $md);
 
         $ids = $md->getIdentifier();

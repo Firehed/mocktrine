@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Persistence\Mapping\ClassMetadata;
+
 use function array_key_exists;
 
 /**
@@ -19,15 +21,15 @@ class CriteriaEvaluatorFactory
     private static array $instances = [];
 
     /**
-     * @param class-string<Entity> $className
+     * @param ClassMetadata<Entity> $metadata
      * @return CriteriaEvaluator<Entity>
      */
-    public static function getInstance(string $className): CriteriaEvaluator
+    public static function getInstance(ClassMetadata $metadata): CriteriaEvaluator
     {
+        $className = $metadata->getName();
         if (!array_key_exists($className, self::$instances)) {
-            self::$instances[$className] = new CriteriaEvaluator($className);
+            self::$instances[$className] = new CriteriaEvaluator($metadata);
         }
-        // @phpstan-ignore-next-line (see #3273)
         return self::$instances[$className];
     }
 }

@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\Expr\{
     Expression,
     Value,
 };
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use DomainException;
 use ReflectionClass;
 use UnexpectedValueException;
@@ -31,10 +32,6 @@ use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\SimpleAnnotationReader;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-
 /**
  * This functions similarly to ClosureExpressionVisitor, but uses class
  * reflection rather than a series of cascading accessor detectors (which are
@@ -47,44 +44,26 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
  */
 class CriteriaEvaluator
 {
-    /** @var class-string<Entity> */
-    private string $className;
+    /** @var ClassMetadata<Entity> */
+    private ClassMetadata $metadata;
 
     /** @var \ReflectionProperty[] */
     private array $reflectionProperties;
 
     /**
-     * @param class-string<Entity> $className
+     * @param ClassMetadata<Entity> $metadata
      */
-    public function __construct(string $className)
+    public function __construct(ClassMetadata $metadata)
     {
-        $this->className = $className;
-
-        $reader = new AnnotationReader(); // I:Doctrine\Common\Annotations\Reader
-        if (true) { // useSimpleblah
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-        }
-        $driver = new AnnotationDriver($reader, '.');
-
-        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\AnnotationDriver);
-        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\MappingDriver);
-
-        $md = new \Doctrine\ORM\Mapping\ClassMetadata(
-            $this->className,
-            //, $this->em->getConfiguration()->getNamingStrategy()
-        );
-        assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);    
-        $driver->loadMetadataForClass($this->className, $md);
-        // $md->getReflectionClass() returns null here for some reason
+        $className = $metadata->getName();
         $rc = new ReflectionClass($className);
-        foreach ($md->getFieldNames() as $fieldName) {
+        foreach ($metadata->getFieldNames() as $fieldName) {
             $rp = $rc->getProperty($fieldName);
             $rp->setAccessible(true);
             $this->reflectionProperties[$fieldName] = $rp;
         }
         // print_r($this->reflectionProperties);
-        print_r($md->getAssociationNames());
+        // print_r($md->getAssociationNames());
     }
 
     /**
