@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
 use TypeError;
 use UnexpectedValueException;
@@ -18,10 +21,19 @@ use UnexpectedValueException;
  */
 class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 {
+    private MappingDriver $driver;
+
+    public function setUp(): void
+    {
+        $reader = new SimpleAnnotationReader();
+        $reader->addNamespace('Doctrine\ORM\Mapping');
+        $this->driver = new AnnotationDriver($reader);
+    }
+
     /** @covers ::__construct */
     public function testConstruct(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         /**
          * @psalm-suppress RedundantCondition
          */
@@ -31,14 +43,14 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     /** @covers ::getClassName */
     public function testGetClassName(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertSame(Entities\User::class, $repo->getClassName());
     }
 
     /** @covers ::manage */
     public function testManageAcceptsOwnClass(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $repo->manage(new Entities\User('1@example.com', 'last', 1));
         $this->assertTrue(true, 'Should not throw');
     }
@@ -46,7 +58,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     /** @covers ::manage */
     public function testManageRejectsOtherClasses(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->expectException(TypeError::class);
         /**
          * @psalm-suppress InvalidArgument
@@ -235,28 +247,28 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     /** @covers ::getIdField */
     public function testGetIdFieldTypical(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertSame('id', $repo->getIdField());
     }
 
     /** @covers ::getIdField */
     public function testGetIdFieldAtypicalField(): void
     {
-        $repo = new InMemoryRepository(Entities\Node::class);
+        $repo = new InMemoryRepository(Entities\Node::class, $this->driver);
         $this->assertSame('nodeId', $repo->getIdField());
     }
 
     /** @covers ::isIdGenerated */
     public function testIdIsGeneratedTrue(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertTrue($repo->isIdGenerated());
     }
 
     /** @covers ::isIdGenerated */
     public function testIdIsGeneratedFalse(): void
     {
-        $repo = new InMemoryRepository(Entities\Node::class);
+        $repo = new InMemoryRepository(Entities\Node::class, $this->driver);
         $this->assertFalse($repo->isIdGenerated());
     }
 
@@ -264,7 +276,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function testReturnedObjectDoesNotHaveReflectedPropertiesExposed(): void
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $user = new Entities\User('user@example.com', 'lastname');
         $repo->manage($user);
         $found = $repo->findAll();
@@ -392,7 +404,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     private function getFixture(): InMemoryRepository
     {
-        $repo = new InMemoryRepository(Entities\User::class);
+        $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $repo->manage(new Entities\User('1@example.com', 'last', 1));
         $repo->manage(new Entities\User('2@example.com', 'last', 2));
         $repo->manage(new Entities\User('3@example.com', 'other', 3));
