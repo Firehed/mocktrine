@@ -66,9 +66,11 @@ class InMemoryEntityManager implements EntityManagerInterface
             // `createAnnotationMetadataDriverConfiguration()` uses the simple
             // annotation reader. This is configurable in Setup, but we will
             // emulate the default case.
+            // If you would like different behavior, provide the driver
+            // directly.
             $reader = new SimpleAnnotationReader();
             $reader->addNamespace('Doctrine\ORM\Mapping');
-            $driver = new AnnotationDriver($reader, []);
+            $driver = new AnnotationDriver($reader);
         }
         $this->mappingDriver = $driver;
     }
