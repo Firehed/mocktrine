@@ -11,18 +11,13 @@ use Doctrine\Common\Collections\{
     Expr,
     Selectable,
 };
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use DomainException;
 use ReflectionClass;
 use TypeError;
 use UnexpectedValueException;
-use phpDocumentor\Reflection\DocBlockFactory;
-use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
-
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\SimpleAnnotationReader;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 
 use function assert;
 use function count;
@@ -45,34 +40,25 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /**
      * @var class-string<Entity>
      */
-    private $className;
+    private string $className;
 
-    /** @var DocBlockFactory */
-    private $docblockFactory;
+    private ?string $idField;
 
-    /** @var ?string */
-    private $idField;
+    private ?string $idType;
 
-    /** @var ?string */
-    private $idType;
-
-    /** @var bool */
-    private $isIdGenerated;
+    private bool $isIdGenerated;
 
     /** @var Entity[] */
     private $managedEntities = [];
 
-    /** @var ReflectionClass<Entity> */
-    private $rc;
-
+    private MappingDriver $mappingDriver;
     /**
      * @param class-string<Entity> $fqcn
      */
-    public function __construct(string $fqcn)
+    public function __construct(string $fqcn, MappingDriver $mappingDriver)
     {
         $this->className = $fqcn;
-        // $this->docblockFactory = DocBlockFactory::createInstance();
-        $this->rc = new ReflectionClass($fqcn);
+        $this->mappingDriver = $mappingDriver;
         [
             $this->idField,
             $this->idType,
@@ -242,75 +228,27 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     private function findIdField(): array
     {
-
-        $reader = new AnnotationReader(); // I:Doctrine\Common\Annotations\Reader
-        if (true) { // useSimpleblah
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-        }
-        $driver = new AnnotationDriver($reader, '.');
-
-        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\AnnotationDriver);
-        assert($driver instanceof \Doctrine\Persistence\Mapping\Driver\MappingDriver);
-
         $md = new \Doctrine\ORM\Mapping\ClassMetadata(
-            $this->className, null
+            $this->className,
             //, $this->em->getConfiguration()->getNamingStrategy()
         );
         assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
-        $driver->loadMetadataForClass($this->className, $md);
-        // print_r($driver);
+        $this->mappingDriver->loadMetadataForClass($this->className, $md);
+
         $ids = $md->getIdentifier();
+
         // Entity does not have an id field!
         if (count($ids) === 0) {
             return [null, null, false];
         }
-        assert(count($ids) === 1);
 
+        assert(count($ids) === 1);
         $idField = $ids[0];
         return [
             $idField,
             $md->getTypeOfField($idField),
             $md->usesIdGenerator(),
         ];
-
-        foreach ($this->rc->getProperties() as $reflectionProp) {
-            $docComment = $reflectionProp->getDocComment();
-            assert($docComment !== false);
-            $docblock = $this->docblockFactory->create($docComment);
-            if ($docblock->hasTag('Id')) {
-                // If an Id Column doesn't have type="integer" it defaults to
-                // string (like all other columns)
-                $idType = 'string';
-                $columnTags = $docblock->getTagsByName('Column');
-                if (count($columnTags) > 0) {
-                    $columnTag = $columnTags[0];
-                    assert($columnTag instanceof BaseTag);
-                    $desc = $columnTag->getDescription();
-                    if ($desc !== null) {
-                        $descString = $desc->render();
-                        $matchCount = preg_match('#type="([a-z]+)"#', $descString, $matches);
-                        if ($matchCount > 0) {
-                            $idType = $matches[1];
-                            if ($idType !== 'string' && $idType !== 'integer') {
-                                throw new UnexpectedValueException(sprintf(
-                                    'Detected Id type is %s, only %s and %s are valid',
-                                    $idType,
-                                    'string',
-                                    'integer'
-                                ));
-                            }
-                        }
-                    }
-                }
-                return [
-                    $reflectionProp->getName(),
-                    $idType,
-                    $docblock->hasTag('GeneratedValue'),
-                ];
-            }
-        }
-        return [null, null, false];
     }
 
     /**
