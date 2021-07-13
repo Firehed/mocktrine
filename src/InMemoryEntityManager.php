@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\ORM\{
     Configuration,
     EntityManagerInterface,
-    Mapping\ClassMetadata,
-    Mapping\ClassMetadataFactory,
     NativeQuery,
     ORMException,
     OptimisticLockException,
@@ -18,6 +17,12 @@ use Doctrine\ORM\{
     Query\ResultSetMapping,
     UnitOfWork,
 };
+use Doctrine\ORM\Mapping\{
+    Driver\AnnotationDriver,
+    ClassMetadata,
+    ClassMetadataFactory,
+};
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use RuntimeException;
 
 class InMemoryEntityManager implements EntityManagerInterface
@@ -30,6 +35,12 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
     private $repos = [];
+
+    /**
+     * The mapping driver used for reading the Doctrine ORM mappings from
+     * entities.
+     */
+    private MappingDriver $mappingDriver;
 
     /**
      * @template Entity of object
@@ -47,6 +58,20 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @var callable[]
      */
     private array $onFlushCallbacks = [];
+
+    public function __construct(?MappingDriver $driver = null)
+    {
+        if ($driver === null) {
+            // Doctrine's default
+            // `createAnnotationMetadataDriverConfiguration()` uses the simple
+            // annotation reader. This is configurable in Setup, but we will
+            // emulate the default case.
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
+            $driver = new AnnotationDriver($reader, []);
+        }
+        $this->mappingDriver = $driver;
+    }
 
     public function addOnFlushCallback(callable $callback): void
     {
