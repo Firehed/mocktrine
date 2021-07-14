@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\ORM\{
     Configuration,
@@ -70,6 +71,10 @@ class InMemoryEntityManager implements EntityManagerInterface
             // emulate the default case.
             // If you would like different behavior, provide the driver
             // directly.
+            AnnotationRegistry::registerFile(
+                dirname(__DIR__) .
+                '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
+            );
             $reader = new SimpleAnnotationReader();
             $reader->addNamespace('Doctrine\ORM\Mapping');
             $driver = new AnnotationDriver($reader);
