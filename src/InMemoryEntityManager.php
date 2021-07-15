@@ -65,6 +65,12 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function __construct(?MappingDriver $driver = null)
     {
         if ($driver === null) {
+            // Doctrine's default
+            // `createAnnotationMetadataDriverConfiguration()` uses the simple
+            // annotation reader. This is configurable in Setup, but we will
+            // emulate the default case.
+            // If you would like different behavior, provide the driver
+            // directly.
             $driver = self::getDefaultMappingDriver();
         }
         $this->mappingDriver = $driver;
@@ -655,16 +661,12 @@ class InMemoryEntityManager implements EntityManagerInterface
     {
         static $driver = null;
         if ($driver === null) {
-            // Doctrine's default
-            // `createAnnotationMetadataDriverConfiguration()` uses the simple
-            // annotation reader. This is configurable in Setup, but we will
-            // emulate the default case.
-            // If you would like different behavior, provide the driver
-            // directly.
-            AnnotationRegistry::registerFile(
-                dirname(__DIR__) .
-                '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
-            );
+            // Hack: reproduce the logic of AnnotationRegistry::registerFile,
+            // which is a weird autoloader of sorts. By using class_exists
+            // instead of AnnotationRegistry::registerFile(), we're able to hit
+            // the file through normal Composer autoloading and avoid having to
+            // worry about the relative path to the vendor/ directory.
+            \class_exists(\Doctrine\ORM\Mapping\Driver\DoctrineAnnotations::class);
             $reader = new SimpleAnnotationReader();
             $reader->addNamespace('Doctrine\ORM\Mapping');
             $driver = new AnnotationDriver($reader);
