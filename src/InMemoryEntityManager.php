@@ -65,19 +65,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function __construct(?MappingDriver $driver = null)
     {
         if ($driver === null) {
-            // Doctrine's default
-            // `createAnnotationMetadataDriverConfiguration()` uses the simple
-            // annotation reader. This is configurable in Setup, but we will
-            // emulate the default case.
-            // If you would like different behavior, provide the driver
-            // directly.
-            AnnotationRegistry::registerFile(
-                dirname(__DIR__) .
-                '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
-            );
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-            $driver = new AnnotationDriver($reader);
+            $driver = self::getDefaultMappingDriver();
         }
         $this->mappingDriver = $driver;
     }
@@ -661,5 +649,26 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function hasFilters()
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
+    }
+
+    private static function getDefaultMappingDriver(): MappingDriver
+    {
+        static $driver = null;
+        if ($driver === null) {
+            // Doctrine's default
+            // `createAnnotationMetadataDriverConfiguration()` uses the simple
+            // annotation reader. This is configurable in Setup, but we will
+            // emulate the default case.
+            // If you would like different behavior, provide the driver
+            // directly.
+            AnnotationRegistry::registerFile(
+                dirname(__DIR__) .
+                '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
+            );
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
+            $driver = new AnnotationDriver($reader);
+        }
+        return $driver;
     }
 }
