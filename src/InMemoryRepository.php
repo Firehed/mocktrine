@@ -11,7 +11,10 @@ use Doctrine\Common\Collections\{
     Expr,
     Selectable,
 };
-use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\{
+    ClassMetadata,
+    RuntimeReflectionService,
+};
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
@@ -238,6 +241,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
             $this->className,
             //, $this->em->getConfiguration()->getNamingStrategy()
         );
+        $md->initializeReflection(new RuntimeReflectionService());
         // assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
         $this->metadata = $md;
         $this->mappingDriver->loadMetadataForClass($this->className, $md);
