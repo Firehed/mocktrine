@@ -27,7 +27,6 @@ class CriteriaEvaluatorFactory
         if (!array_key_exists($className, self::$instances)) {
             self::$instances[$className] = new CriteriaEvaluator($className);
         }
-        // @phpstan-ignore-next-line (see #3273)
         return self::$instances[$className];
     }
 }

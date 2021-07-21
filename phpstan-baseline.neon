@@ -16,7 +16,7 @@ parameters:
 			path: src/InMemoryEntityManager.php
 
 		-
-			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with null and 'Id should be…' will always evaluate to false\\.$#"
+			message: "#^Return type \\(Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\) of method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should be compatible with return type \\(Doctrine\\\\ORM\\\\EntityRepository\\<mixed\\>\\) of method Doctrine\\\\ORM\\\\EntityManagerInterface\\:\\:getRepository\\(\\)$#"
 			count: 1
-			path: tests/InMemoryEntityManagerTest.php
+			path: src/InMemoryEntityManager.php
 
