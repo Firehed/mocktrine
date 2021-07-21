@@ -21,10 +21,10 @@ use Doctrine\ORM\{
 use Doctrine\ORM\Mapping\{
     Driver\AnnotationDriver,
 };
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\Mapping\{
     ClassMetadata,
     ClassMetadataFactory,
+    Driver\MappingDriver,
 };
 use RuntimeException;
 
@@ -266,9 +266,10 @@ class InMemoryEntityManager implements EntityManagerInterface
      * The class name must be the fully-qualified class name without a leading backslash
      * (as it is returned by get_class($obj)).
      *
-     * @template Entity of object
-     * @param class-string<Entity> $className
-     * @return ClassMetadata<Entity>
+     * @template T of object
+     * @param class-string<T> $className
+     *
+     * @return ClassMetadata<T>
      */
     public function getClassMetadata($className)
     {
