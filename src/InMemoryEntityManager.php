@@ -7,8 +7,6 @@ namespace Firehed\Mocktrine;
 use Doctrine\ORM\{
     Configuration,
     EntityManagerInterface,
-    Mapping\ClassMetadata,
-    Mapping\ClassMetadataFactory,
     NativeQuery,
     ORMException,
     OptimisticLockException,
@@ -17,6 +15,10 @@ use Doctrine\ORM\{
     QueryBuilder,
     Query\ResultSetMapping,
     UnitOfWork,
+};
+use Doctrine\Persistence\Mapping\{
+    ClassMetadata,
+    ClassMetadataFactory,
 };
 use RuntimeException;
 
@@ -238,9 +240,10 @@ class InMemoryEntityManager implements EntityManagerInterface
      * The class name must be the fully-qualified class name without a leading backslash
      * (as it is returned by get_class($obj)).
      *
-     * @param string $className
+     * @template T of object
+     * @param class-string<T> $className
      *
-     * @return ClassMetadata
+     * @return ClassMetadata<T>
      */
     public function getClassMetadata($className)
     {
@@ -250,7 +253,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the metadata factory used to gather the metadata of classes.
      *
-     * @return ClassMetadataFactory
+     * @return ClassMetadataFactory<ClassMetadata<object>>
      */
     public function getMetadataFactory()
     {
