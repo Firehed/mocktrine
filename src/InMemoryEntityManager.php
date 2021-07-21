@@ -238,9 +238,10 @@ class InMemoryEntityManager implements EntityManagerInterface
      * The class name must be the fully-qualified class name without a leading backslash
      * (as it is returned by get_class($obj)).
      *
-     * @param string $className
+     * @template T of object
+     * @param class-string<T> $className
      *
-     * @return ClassMetadata
+     * @return ClassMetadata<T>
      */
     public function getClassMetadata($className)
     {
