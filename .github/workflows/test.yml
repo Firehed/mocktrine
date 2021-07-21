@@ -70,4 +70,5 @@ jobs:
           --coverage-clover coverage.xml
 
       - name: Submit code coverage
-        run: bash <(curl -s https://codecov.io/bash)
+        if: ${{ always() }}
+        uses: codecov/codecov-action@v2
