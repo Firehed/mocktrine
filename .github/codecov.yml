@@ -5,4 +5,4 @@ coverage:
       default: false
       src:
         paths: src
-        threshold: 1%
+        threshold: 5%
