@@ -18,7 +18,10 @@ use Doctrine\Persistence\Mapping\{
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\{
+    ClassMetadata,
+    MappingException,
+};
 use DomainException;
 use ReflectionClass;
 use TypeError;
@@ -80,10 +83,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
         $ids = $metadata->getIdentifier();
         // Entity does not have an id field!
         if (count($ids) === 0) {
-            $this->idField = null;
-            $this->idType = null;
-            $this->isIdGenerated = false;
-            return;
+            throw MappingException::identifierRequired($fqcn);
         }
 
         assert(count($ids) === 1);
