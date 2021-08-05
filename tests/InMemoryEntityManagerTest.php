@@ -8,9 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\InMemoryEntityManager
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\Mocktrine\InMemoryEntityManager
  */
 class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 {
@@ -19,17 +17,12 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         return new InMemoryEntityManager();
     }
 
-    /** @covers ::find */
     public function testFindWithNoEntity(): void
     {
         $em = $this->getEntityManager();
         $this->assertNull($em->find(Entities\User::class, 10));
     }
 
-    /**
-     * @covers ::find
-     * @covers ::merge
-     */
     public function testFindWithPersistedEntity(): void
     {
         $user = new Entities\User('1@example.com', 'last', 10);
@@ -39,9 +32,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($user, $em->find(Entities\User::class, 10));
     }
 
-    /**
-     * @covers ::getRepository
-     */
     public function testGetRepository(): void
     {
         $em = $this->getEntityManager();
@@ -51,10 +41,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(Entities\User::class, $repo->getClassName());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsNotAssignedBeforeFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
@@ -64,10 +50,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($user->getId(), 'Id should not be assigned yet');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsAssignedAfterFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
@@ -79,10 +61,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertIsInt($user->getId());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsNotChangedAfterSecondFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
@@ -99,10 +77,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($id, $user->getId(), 'Id should not have changed');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdNotAssignedWithoutGeneratedValueAnnotation(): void
     {
         $node = new Entities\Node();
@@ -113,10 +87,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($id, $node->getNodeId(), 'Id must not change');
     }
 
-    /**
-     * @covers ::remove
-     * @covers ::flush
-     */
     public function testRemoveMakesQueryingEntityInaccessable(): void
     {
         $node = new Entities\Node();
@@ -140,10 +110,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::addOnFlushCallback
-     * @covers ::flush
-     */
     public function testAddOnFlushCallback(): void
     {
         $em = $this->getEntityManager();
@@ -161,10 +127,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($flushed2, 'Second callback did not fire');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testStringIdIsGenerated(): void
     {
         $sid = new Entities\StringId();
@@ -176,10 +138,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertIsString($sid->getId());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testUnspecifiedIdIsString(): void
     {
         $sid = new Entities\UnspecifiedId();
@@ -196,9 +154,6 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
      * EntityManager implementation are as accurate as possible, particularly
      * when multiple different entity types are used in the same repository
      * instance.
-     *
-     * @covers ::persist
-     * @covers ::flush
      */
     public function testInteractionWithMultipleEntities(): void
     {

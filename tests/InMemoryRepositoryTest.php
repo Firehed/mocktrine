@@ -15,9 +15,7 @@ use TypeError;
 use UnexpectedValueException;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\InMemoryRepository
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\Mocktrine\InMemoryRepository
  */
 class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -30,7 +28,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->driver = new AnnotationDriver($reader);
     }
 
-    /** @covers ::__construct */
     public function testConstruct(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
@@ -40,14 +37,12 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(ObjectRepository::class, $repo);
     }
 
-    /** @covers ::getClassName */
     public function testGetClassName(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertSame(Entities\User::class, $repo->getClassName());
     }
 
-    /** @covers ::manage */
     public function testManageAcceptsOwnClass(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
@@ -55,7 +50,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(true, 'Should not throw');
     }
 
-    /** @covers ::manage */
     public function testManageRejectsOtherClasses(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
@@ -67,7 +61,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->manage(new Entities\Group());
     }
 
-    /** @covers ::findBy */
     public function testSimpleFindBy(): void
     {
         $repo = $this->getFixture();
@@ -81,7 +74,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('2@example.com', $results[1]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithArrayValue(): void
     {
         $repo = $this->getFixture();
@@ -97,7 +89,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $results[1]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithSorting(): void
     {
         $repo = $this->getFixture();
@@ -110,7 +101,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $results[4]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindBySortingIsCaseInsensitive(): void
     {
         $repo = $this->getFixture();
@@ -123,7 +113,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $results[4]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithLimit(): void
     {
         $repo = $this->getFixture();
@@ -133,7 +122,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('2@example.com', $results[1]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithLimitExceedingSet(): void
     {
         $repo = $this->getFixture();
@@ -146,7 +134,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('5@example.com', $results[4]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithOffset(): void
     {
         $repo = $this->getFixture();
@@ -157,7 +144,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('5@example.com', $results[2]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithOffsetExceedingSet(): void
     {
         $repo = $this->getFixture();
@@ -165,7 +151,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertResultSizeAndIndexValidity(0, $results);
     }
 
-    /** @covers ::findBy */
     public function testFindByWithLimitAndOffset(): void
     {
         $repo = $this->getFixture();
@@ -175,7 +160,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('4@example.com', $results[1]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithLimitAndOffsetExceedingSet(): void
     {
         $repo = $this->getFixture();
@@ -184,7 +168,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('5@example.com', $results[0]->getEmail());
     }
 
-    /** @covers ::findBy */
     public function testFindByWithLimitAndOffsetTotallyExceedingSet(): void
     {
         $repo = $this->getFixture();
@@ -192,15 +175,12 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertResultSizeAndIndexValidity(0, $results);
     }
 
-
-    /** @covers ::findOneBy */
     public function testFindOneByWithNoMatches(): void
     {
         $repo = $this->getFixture();
         $this->assertNull($repo->findOneBy(['email' => 'notfound@example.com']));
     }
 
-    /** @covers ::findOneBy */
     public function testFindOneByWithOneMatch(): void
     {
         $repo = $this->getFixture();
@@ -209,7 +189,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $entity->getEmail());
     }
 
-    /** @covers ::findOneBy */
     public function testFindOneByWithMultipleMatches(): void
     {
         $repo = $this->getFixture();
@@ -218,7 +197,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('last', $entity->getLastName());
     }
 
-    /** @covers ::find */
     public function testFindWhereIdExists(): void
     {
         $repo = $this->getFixture();
@@ -227,14 +205,12 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $entity->getEmail());
     }
 
-    /** @covers ::find */
     public function testFindWhereIdDoesNotExist(): void
     {
         $repo = $this->getFixture();
         $this->assertNull($repo->find(20));
     }
 
-    /** @covers ::findAll */
     public function testFindAll(): void
     {
         $repo = $this->getFixture();
@@ -244,28 +220,24 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 
     // Tests for internals
 
-    /** @covers ::getIdField */
     public function testGetIdFieldTypical(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertSame('id', $repo->getIdField());
     }
 
-    /** @covers ::getIdField */
     public function testGetIdFieldAtypicalField(): void
     {
         $repo = new InMemoryRepository(Entities\Node::class, $this->driver);
         $this->assertSame('nodeId', $repo->getIdField());
     }
 
-    /** @covers ::isIdGenerated */
     public function testIdIsGeneratedTrue(): void
     {
         $repo = new InMemoryRepository(Entities\User::class, $this->driver);
         $this->assertTrue($repo->isIdGenerated());
     }
 
-    /** @covers ::isIdGenerated */
     public function testIdIsGeneratedFalse(): void
     {
         $repo = new InMemoryRepository(Entities\Node::class, $this->driver);
@@ -290,7 +262,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $foundUser->lastName = 'asdf';
     }
 
-    /** @covers ::findBy */
     public function testCriteriaUsesFieldNamesNotColumnNames(): void
     {
         $repo = $this->getFixture();
@@ -298,7 +269,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy(['last_name' => 'last']);
     }
 
-    /** @covers ::findBy */
     public function testCriteraThrowsIfFieldDoesNotExist(): void
     {
         $repo = $this->getFixture();
@@ -306,7 +276,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy(['doesNotExist' => true]);
     }
 
-    /** @covers ::findBy */
     public function testFilteringOnNonColumnFieldThrows(): void
     {
         $repo = $this->getFixture();
@@ -314,7 +283,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy(['notAColumn' => 100]);
     }
 
-    /** @covers ::findBy */
     public function testSortingWithInvalidDirectionFieldThrows(): void
     {
         $repo = $this->getFixture();
@@ -322,7 +290,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy([], ['email' => 'SOMETHING']);
     }
 
-    /** @covers ::findBy */
     public function testSortingOnNonColumnFieldThrows(): void
     {
         $repo = $this->getFixture();
@@ -330,7 +297,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy([], ['notAColumn' => 'ASC']);
     }
 
-    /** @covers ::findBy */
     public function testSortingOnNonColumnFieldThrowsWithNoResults(): void
     {
         $repo = $this->getFixture();
@@ -338,7 +304,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo->findBy(['lastName' => 'noMatch'], ['notAColumn' => 'desc']);
     }
 
-    /** @covers ::matching */
     public function testMatching(): void
     {
         $expr = Criteria::expr();
@@ -355,7 +320,6 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /** @covers ::matching */
     public function testComplexMatching(): void
     {
         $expr = Criteria::expr();
@@ -376,7 +340,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
             $repo->find(4),
         ], $users);
     }
-    /** @covers ::matching */
+
     public function testComplexMatchingWithDuplicates(): void
     {
         $expr = Criteria::expr();

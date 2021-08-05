@@ -9,6 +9,9 @@ use Doctrine\ORM\{
     Mapping,
 };
 
+/**
+ * @covers Firehed\Mocktrine\InMemoryEntityManager
+ */
 class XmlDriverTest extends InMemoryEntityManagerTest
 {
     protected function getEntityManager(): InMemoryEntityManager
