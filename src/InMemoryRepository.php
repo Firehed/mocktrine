@@ -50,9 +50,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     private string $className;
 
-    private ?string $idField;
+    private string $idField;
 
-    private ?string $idType;
+    private string $idType;
 
     private bool $isIdGenerated;
 
@@ -89,7 +89,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
         assert(count($ids) === 1);
         $idField = $ids[0];
         $this->idField = $idField;
-        $this->idType = $metadata->getTypeOfField($idField);
+        $idType = $metadata->getTypeOfField($idField);
+        assert($idType !== null);
+        $this->idType = $idType;
         $this->isIdGenerated = $metadata->usesIdGenerator();
     }
 
@@ -133,9 +135,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function find($id)
     {
-        if (!$this->idField) {
-            throw new \Exception('Entity has no id...?');
-        }
         return $this->findOneBy([$this->idField => $id]);
     }
 
@@ -252,7 +251,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @internal
      */
-    public function getIdField(): ?string
+    public function getIdField(): string
     {
         return $this->idField;
     }
