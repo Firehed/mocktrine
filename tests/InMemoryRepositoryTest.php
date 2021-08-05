@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
 use TypeError;
@@ -216,6 +217,14 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $all = $repo->findAll();
         $this->assertResultSizeAndIndexValidity(5, $all);
+    }
+
+    // Test bad entity handling
+
+    public function testEntityWithNoIdField(): void
+    {
+        $this->expectException(MappingException::class);
+        new InMemoryRepository(Entities\Group::class, $this->driver);
     }
 
     // Tests for internals

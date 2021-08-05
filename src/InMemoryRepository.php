@@ -262,7 +262,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @internal
      */
-    public function getIdType(): ?string
+    public function getIdType(): string
     {
         return $this->idType;
     }
