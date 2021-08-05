@@ -70,12 +70,27 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $this->className = $fqcn;
         $this->mappingDriver = $mappingDriver;
-        [
-            $this->idField,
-            $this->idType,
-            $this->isIdGenerated
-        ] = $this->findIdField();
-        // TODO: define behavior of non-int generated id fields
+
+        // Use provided driver to figure out what field is marked as @Id
+        $metadata = new ClassMetadata($this->className);
+        $metadata->initializeReflection(new RuntimeReflectionService());
+        $this->metadata = $metadata;
+        $this->mappingDriver->loadMetadataForClass($this->className, $metadata);
+
+        $ids = $metadata->getIdentifier();
+        // Entity does not have an id field!
+        if (count($ids) === 0) {
+            $this->idField = null;
+            $this->idType = null;
+            $this->isIdGenerated = false;
+            return;
+        }
+
+        assert(count($ids) === 1);
+        $idField = $ids[0];
+        $this->idField = $idField;
+        $this->idType = $metadata->getTypeOfField($idField);
+        $this->isIdGenerated = $metadata->usesIdGenerator();
     }
 
     /**
@@ -229,35 +244,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
         /** @var CriteriaEvaluator<Entity> */
         $ce = CriteriaEvaluatorFactory::getInstance($this->metadata);
         return $ce->evaluate($this->managedEntities, $criteria);
-    }
-
-    /**
-     * Searches for an @Id tag on the entity, and returns a tuple containing
-     * the associated property name and whether the value is generated.
-     *
-     * @return array{string|null, string|null, bool}
-     */
-    private function findIdField(): array
-    {
-        $md = new ClassMetadata($this->className);
-        $md->initializeReflection(new RuntimeReflectionService());
-        $this->metadata = $md;
-        $this->mappingDriver->loadMetadataForClass($this->className, $md);
-
-        $ids = $md->getIdentifier();
-
-        // Entity does not have an id field!
-        if (count($ids) === 0) {
-            return [null, null, false];
-        }
-
-        assert(count($ids) === 1);
-        $idField = $ids[0];
-        return [
-            $idField,
-            $md->getTypeOfField($idField),
-            $md->usesIdGenerator(),
-        ];
     }
 
     /**
