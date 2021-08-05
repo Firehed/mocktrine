@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+      xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="Firehed\Mocktrine\Entities\GrabBag" table="grab_bags">
+
+        <field name="boolField" column="bool_field" type="boolean" />
+        <field name="floatField" column="float_field" type="float" />
+        <field name="strField" column="str_field" type="string" />
+        <field name="dateField" column="date_field" type="date" />
+
+    </entity>
+
+</doctrine-mapping>

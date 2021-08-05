@@ -13,9 +13,29 @@ A Doctrine mocking library for testing
 In your unit tests that need an Entity Manager, use a `new \Firehed\Mocktrine\InMemoryEntityManager`. Done!
 
 Any object with Doctrine's entity annotations (`@Entity`, `@Id`, `@Column`, etc) should work without modification.
-Only annotation-based entity classes are supported; XML and Yaml are not.
 
 This library aims to provide as much type information as possible, so that static analysis tools (such as PHPStan) work well without additional plugins.
+
+### Mapping support
+
+As of version 0.5, any mapping driver supported by Doctrine can be used with this library.
+The `InMemoryEntityManager` accepts the driver as an optional parameter.
+
+```diff
+- $em = new Mocktrine\InMemoryEntityManager();
++ $em = new Mocktrine\InMemoryEntityManager(
++     \Doctrine\ORM\Mapping\Driver\AttributeDriver(['src/Model']),
++ );
+```
+
+You can also grab the value directly from your Doctrine config:
+```php
+$config = Setup::createAnnotationMetadataDriverConfiguration(...)
+$driver = $config->getMetadataDriverImpl();
+$em = new Mocktrine\InMemoryEntityManager($driver)
+```
+
+If a driver is not provided, it will default to the `SimpleAnnotationReader` that's used via `Setup::createAnnotationMetadataConfiguration`.
 
 ## Supported features
 

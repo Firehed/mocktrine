@@ -12,10 +12,10 @@ use Doctrine\Common\Collections\Expr\{
     Expression,
     Value,
 };
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use DomainException;
 use ReflectionClass;
 use UnexpectedValueException;
-use phpDocumentor\Reflection\DocBlockFactory;
 
 use function array_filter;
 use function array_map;
@@ -44,37 +44,24 @@ use function str_starts_with;
  */
 class CriteriaEvaluator
 {
-    private static ?DocBlockFactory $docBlockFactory = null;
-
-    /** @var class-string<Entity> */
-    private string $className;
+    /** @var ClassMetadata<Entity> */
+    private ClassMetadata $metadata;
 
     /** @var \ReflectionProperty[] */
     private array $reflectionProperties;
 
     /**
-     * @param class-string<Entity> $className
+     * @param ClassMetadata<Entity> $metadata
      */
-    public function __construct(string $className)
+    public function __construct(ClassMetadata $metadata)
     {
+        $this->metadata = $metadata;
+        $className = $metadata->getName();
         $rc = new ReflectionClass($className);
-        $this->className = $className;
-
-        if (!self::$docBlockFactory) {
-            self::$docBlockFactory = DocBlockFactory::createInstance();
-        }
-
-        foreach ($rc->getProperties() as $rp) {
-            $docComment = $rp->getDocComment();
-            assert($docComment !== false);
-
-            $docblock = self::$docBlockFactory->create($docComment);
-            // TODO: support other relations
-            // TODO: support PHP 8 annotations if Doctrine ORM ends up doing so
-            if ($docblock->hasTag('Column')) {
-                $rp->setAccessible(true);
-                $this->reflectionProperties[$rp->getName()] = $rp;
-            }
+        foreach ($metadata->getFieldNames() as $fieldName) {
+            $rp = $rc->getProperty($fieldName);
+            $rp->setAccessible(true);
+            $this->reflectionProperties[$fieldName] = $rp;
         }
     }
 
@@ -243,7 +230,7 @@ class CriteriaEvaluator
             throw new UnexpectedValueException(sprintf(
                 'Property "%s" is not a mapped field on class "%s"',
                 $property,
-                $this->className,
+                $this->metadata->getName(),
             ));
         }
         return $this->reflectionProperties[$property]->getValue($entity);
@@ -264,7 +251,7 @@ class CriteriaEvaluator
                 throw new UnexpectedValueException(sprintf(
                     'Sort field "%s" is not a mapped field on class "%s"',
                     $property,
-                    $this->className,
+                    $this->metadata->getName(),
                 ));
             }
         }

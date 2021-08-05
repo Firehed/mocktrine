@@ -6,14 +6,11 @@ namespace Firehed\Mocktrine;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\CriteriaEvaluator
- * @covers ::<protected>
- * @covers ::<private>
- * @covers ::__construct
- * @covers ::evaluate
+ * @covers Firehed\Mocktrine\CriteriaEvaluator
  */
 class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
@@ -25,7 +22,8 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        $repo = new InMemoryRepository(GrabBag::class);
+        $em = new InMemoryEntityManager();
+        $repo = $em->getRepository(GrabBag::class);
         $this->entities = [
             new GrabBag(true, 30, 'hello', new DateTimeImmutable()),
             new GrabBag(true, 30.5, 'hi', new DateTimeImmutable()),

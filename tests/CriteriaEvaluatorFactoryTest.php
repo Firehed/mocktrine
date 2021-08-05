@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Persistence\Mapping\ClassMetadata;
+
 /**
- * @coversDefaultClass Firehed\Mocktrine\CriteriaEvaluatorFactory
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\Mocktrine\CriteriaEvaluatorFactory
  */
 class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetInstanceReturnsSingleton(): void
     {
-        $ce1 = CriteriaEvaluatorFactory::getInstance(Entities\GrabBag::class);
-        $ce2 = CriteriaEvaluatorFactory::getInstance(Entities\GrabBag::class);
+        $md = $this->createMock(ClassMetadata::class);
+        $md->method('getName')->willReturn(Entities\GrabBag::class);
+        $md->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
+
+        $ce1 = CriteriaEvaluatorFactory::getInstance($md);
+        $ce2 = CriteriaEvaluatorFactory::getInstance($md);
 
         $this->assertSame(
             $ce1,
@@ -25,8 +29,16 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 
     public function testGetInstanceReturnsDifferentInstancesForDifferentClasses(): void
     {
-        $ce1 = CriteriaEvaluatorFactory::getInstance(Entities\GrabBag::class);
-        $ce2 = CriteriaEvaluatorFactory::getInstance(Entities\User::class);
+        $md1 = $this->createMock(ClassMetadata::class);
+        $md1->method('getName')->willReturn(Entities\GrabBag::class);
+        $md1->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
+
+        $md2 = $this->createMock(ClassMetadata::class);
+        $md2->method('getName')->willReturn(Entities\User::class);
+        $md2->method('getFieldNames')->willReturn(['id', 'email', 'active', 'lastName']);
+
+        $ce1 = CriteriaEvaluatorFactory::getInstance($md1);
+        $ce2 = CriteriaEvaluatorFactory::getInstance($md2);
 
         $this->assertNotSame(
             $ce1,

@@ -11,14 +11,21 @@ use Doctrine\Common\Collections\{
     Expr,
     Selectable,
 };
+use Doctrine\Persistence\Mapping\{
+    ClassMetadata as ClassMetadataInterface,
+    RuntimeReflectionService,
+};
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Mapping\{
+    ClassMetadata,
+    MappingException,
+};
 use DomainException;
 use ReflectionClass;
 use TypeError;
 use UnexpectedValueException;
-use phpDocumentor\Reflection\DocBlockFactory;
-use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 
 use function assert;
 use function count;
@@ -41,40 +48,51 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /**
      * @var class-string<Entity>
      */
-    private $className;
+    private string $className;
 
-    /** @var DocBlockFactory */
-    private $docblockFactory;
+    private string $idField;
 
-    /** @var ?string */
-    private $idField;
+    private string $idType;
 
-    /** @var ?string */
-    private $idType;
-
-    /** @var bool */
-    private $isIdGenerated;
+    private bool $isIdGenerated;
 
     /** @var Entity[] */
     private $managedEntities = [];
 
-    /** @var ReflectionClass<Entity> */
-    private $rc;
+    private MappingDriver $mappingDriver;
+
+    /**
+     * @var ClassMetadataInterface<Entity>
+     */
+    private ClassMetadataInterface $metadata;
 
     /**
      * @param class-string<Entity> $fqcn
      */
-    public function __construct(string $fqcn)
+    public function __construct(string $fqcn, MappingDriver $mappingDriver)
     {
         $this->className = $fqcn;
-        $this->docblockFactory = DocBlockFactory::createInstance();
-        $this->rc = new ReflectionClass($fqcn);
-        [
-            $this->idField,
-            $this->idType,
-            $this->isIdGenerated
-        ] = $this->findIdField();
-        // TODO: define behavior of non-int generated id fields
+        $this->mappingDriver = $mappingDriver;
+
+        // Use provided driver to figure out what field is marked as @Id
+        $metadata = new ClassMetadata($this->className);
+        $metadata->initializeReflection(new RuntimeReflectionService());
+        $this->metadata = $metadata;
+        $this->mappingDriver->loadMetadataForClass($this->className, $metadata);
+
+        $ids = $metadata->getIdentifier();
+        // Entity does not have an id field!
+        if (count($ids) === 0) {
+            throw MappingException::identifierRequired($fqcn);
+        }
+
+        assert(count($ids) === 1);
+        $idField = $ids[0];
+        $this->idField = $idField;
+        $idType = $metadata->getTypeOfField($idField);
+        assert($idType !== null);
+        $this->idType = $idType;
+        $this->isIdGenerated = $metadata->usesIdGenerator();
     }
 
     /**
@@ -117,9 +135,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     public function find($id)
     {
-        if (!$this->idField) {
-            throw new \Exception('Entity has no id...?');
-        }
         return $this->findOneBy([$this->idField => $id]);
     }
 
@@ -225,56 +240,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         $expr = $criteria->getWhereExpression();
 
-        // @phpstan-ignore-next-line (see #3273)
-        return CriteriaEvaluatorFactory::getInstance($this->getClassName())
-            ->evaluate($this->managedEntities, $criteria);
-    }
-
-    /**
-     * Searches for an @Id tag on the entity, and returns a tuple containing
-     * the associated property name and whether the value is generated.
-     *
-     * @return array{string|null, string|null, bool}
-     */
-    private function findIdField(): array
-    {
-        foreach ($this->rc->getProperties() as $reflectionProp) {
-            $docComment = $reflectionProp->getDocComment();
-            assert($docComment !== false);
-            $docblock = $this->docblockFactory->create($docComment);
-            if ($docblock->hasTag('Id')) {
-                // If an Id Column doesn't have type="integer" it defaults to
-                // string (like all other columns)
-                $idType = 'string';
-                $columnTags = $docblock->getTagsByName('Column');
-                if (count($columnTags) > 0) {
-                    $columnTag = $columnTags[0];
-                    assert($columnTag instanceof BaseTag);
-                    $desc = $columnTag->getDescription();
-                    if ($desc !== null) {
-                        $descString = $desc->render();
-                        $matchCount = preg_match('#type="([a-z]+)"#', $descString, $matches);
-                        if ($matchCount > 0) {
-                            $idType = $matches[1];
-                            if ($idType !== 'string' && $idType !== 'integer') {
-                                throw new UnexpectedValueException(sprintf(
-                                    'Detected Id type is %s, only %s and %s are valid',
-                                    $idType,
-                                    'string',
-                                    'integer'
-                                ));
-                            }
-                        }
-                    }
-                }
-                return [
-                    $reflectionProp->getName(),
-                    $idType,
-                    $docblock->hasTag('GeneratedValue'),
-                ];
-            }
-        }
-        return [null, null, false];
+        /** @var CriteriaEvaluator<Entity> */
+        $ce = CriteriaEvaluatorFactory::getInstance($this->metadata);
+        return $ce->evaluate($this->managedEntities, $criteria);
     }
 
     /**
@@ -283,7 +251,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @internal
      */
-    public function getIdField(): ?string
+    public function getIdField(): string
     {
         return $this->idField;
     }
@@ -294,7 +262,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @internal
      */
-    public function getIdType(): ?string
+    public function getIdType(): string
     {
         return $this->idType;
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\ORM\{
     Configuration,
     EntityManagerInterface,
@@ -16,11 +18,18 @@ use Doctrine\ORM\{
     Query\ResultSetMapping,
     UnitOfWork,
 };
+use Doctrine\ORM\Mapping\{
+    Driver\AnnotationDriver,
+    Driver\DoctrineAnnotations,
+};
 use Doctrine\Persistence\Mapping\{
     ClassMetadata,
     ClassMetadataFactory,
+    Driver\MappingDriver,
 };
 use RuntimeException;
+
+use function class_exists;
 
 class InMemoryEntityManager implements EntityManagerInterface
 {
@@ -32,6 +41,17 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
     private $repos = [];
+
+    /**
+     * Default instance, for performance
+     */
+    private static ?MappingDriver $defaultMappingDriver = null;
+
+    /**
+     * The mapping driver used for reading the Doctrine ORM mappings from
+     * entities.
+     */
+    private MappingDriver $mappingDriver;
 
     /**
      * @template Entity of object
@@ -49,6 +69,20 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @var callable[]
      */
     private array $onFlushCallbacks = [];
+
+    public function __construct(?MappingDriver $driver = null)
+    {
+        if ($driver === null) {
+            // Doctrine's default
+            // `createAnnotationMetadataDriverConfiguration()` uses the simple
+            // annotation reader. This is configurable in Setup, but we will
+            // emulate the default case.
+            // If you would like different behavior, provide the driver
+            // directly.
+            $driver = self::getDefaultMappingDriver();
+        }
+        $this->mappingDriver = $driver;
+    }
 
     public function addOnFlushCallback(callable $callback): void
     {
@@ -198,7 +232,6 @@ class InMemoryEntityManager implements EntityManagerInterface
             }
             $idField = $repo->getIdField();
             $idType = $repo->getIdType();
-            assert($idField !== null);
             $rp = new \ReflectionProperty($className, $idField);
             $rp->setAccessible(true);
             foreach ($entities as $entity) {
@@ -228,7 +261,7 @@ class InMemoryEntityManager implements EntityManagerInterface
     {
         // https://github.com/phpstan/phpstan/issues/2761
         if (!isset($this->repos[$className])) {
-            $this->repos[$className] = new InMemoryRepository($className);
+            $this->repos[$className] = new InMemoryRepository($className, $this->mappingDriver);
         }
 
         return $this->repos[$className];
@@ -630,5 +663,21 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function hasFilters()
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
+    }
+
+    private static function getDefaultMappingDriver(): MappingDriver
+    {
+        if (self::$defaultMappingDriver === null) {
+            // Hack: reproduce the logic of AnnotationRegistry::registerFile,
+            // which is a weird autoloader of sorts. By using class_exists
+            // instead of AnnotationRegistry::registerFile(), we're able to hit
+            // the file through normal Composer autoloading and avoid having to
+            // worry about the relative path to the vendor/ directory.
+            class_exists(DoctrineAnnotations::class);
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
+            self::$defaultMappingDriver = new AnnotationDriver($reader);
+        }
+        return self::$defaultMappingDriver;
     }
 }

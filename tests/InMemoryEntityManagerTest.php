@@ -4,84 +4,68 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 
 /**
- * @coversDefaultClass Firehed\Mocktrine\InMemoryEntityManager
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\Mocktrine\InMemoryEntityManager
  */
 class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @covers ::find */
+    protected function getEntityManager(): InMemoryEntityManager
+    {
+        return new InMemoryEntityManager();
+    }
+
     public function testFindWithNoEntity(): void
     {
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $this->assertNull($em->find(Entities\User::class, 10));
     }
 
-    /**
-     * @covers ::find
-     * @covers ::merge
-     */
     public function testFindWithPersistedEntity(): void
     {
         $user = new Entities\User('1@example.com', 'last', 10);
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->merge($user); // This starts managing the entity
 
         $this->assertSame($user, $em->find(Entities\User::class, 10));
     }
 
-    /**
-     * @covers ::getRepository
-     */
     public function testGetRepository(): void
     {
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $repo = $em->getRepository(Entities\User::class);
         $this->assertInstanceOf(InMemoryRepository::class, $repo);
         $this->assertInstanceOf(ObjectRepository::class, $repo);
         $this->assertSame(Entities\User::class, $repo->getClassName());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsNotAssignedBeforeFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
         $this->assertNull($user->getId(), 'Precheck: Id should not be assigned yet');
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($user);
         $this->assertNull($user->getId(), 'Id should not be assigned yet');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsAssignedAfterFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
         $this->assertNull($user->getId(), 'Precheck: Id should not be assigned yet');
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($user);
         $em->flush();
         $this->assertNotNull($user->getId(), 'Id should be assigned');
         $this->assertIsInt($user->getId());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdIsNotChangedAfterSecondFlush(): void
     {
         $user = new Entities\User('1@example.com', 'last');
         $this->assertNull($user->getId(), 'Precheck: Id should not be assigned yet');
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($user);
         $em->flush();
         $id = $user->getId();
@@ -93,28 +77,20 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($id, $user->getId(), 'Id should not have changed');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testIdNotAssignedWithoutGeneratedValueAnnotation(): void
     {
         $node = new Entities\Node();
         $id = $node->getNodeId();
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($node);
         $em->flush();
         $this->assertSame($id, $node->getNodeId(), 'Id must not change');
     }
 
-    /**
-     * @covers ::remove
-     * @covers ::flush
-     */
     public function testRemoveMakesQueryingEntityInaccessable(): void
     {
         $node = new Entities\Node();
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->merge($node);
         $this->assertSame(
             $node,
@@ -134,13 +110,9 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::addOnFlushCallback
-     * @covers ::flush
-     */
     public function testAddOnFlushCallback(): void
     {
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $flushed1 = $flushed2 = false;
         $em->addOnFlushCallback(function () use (&$flushed1) {
             $flushed1 = true;
@@ -155,30 +127,22 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($flushed2, 'Second callback did not fire');
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testStringIdIsGenerated(): void
     {
         $sid = new Entities\StringId();
         $this->assertNull($sid->getId());
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($sid);
         $em->flush();
         $this->assertNotNull($sid->getId());
         $this->assertIsString($sid->getId());
     }
 
-    /**
-     * @covers ::persist
-     * @covers ::flush
-     */
     public function testUnspecifiedIdIsString(): void
     {
         $sid = new Entities\UnspecifiedId();
         $this->assertNull($sid->getId());
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($sid);
         $em->flush();
         $this->assertNotNull($sid->getId());
@@ -190,16 +154,13 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
      * EntityManager implementation are as accurate as possible, particularly
      * when multiple different entity types are used in the same repository
      * instance.
-     *
-     * @covers ::persist
-     * @covers ::flush
      */
     public function testInteractionWithMultipleEntities(): void
     {
         $user = new Entities\User('1@example.com', 'last', 10);
         $stringId = new Entities\StringId();
 
-        $em = new InMemoryEntityManager();
+        $em = $this->getEntityManager();
         $em->persist($user);
         $em->persist($stringId);
         $em->flush();

@@ -13,6 +13,12 @@ use DateTimeInterface;
 class GrabBag
 {
     /**
+     * @Id
+     * @Column
+     */
+    private int $id;
+
+    /**
      * @Column(name="bool_field", type="boolean")
      */
     private bool $boolField;
