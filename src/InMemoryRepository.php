@@ -12,12 +12,13 @@ use Doctrine\Common\Collections\{
     Selectable,
 };
 use Doctrine\Persistence\Mapping\{
-    ClassMetadata,
+    ClassMetadata as ClassMetadataInterface,
     RuntimeReflectionService,
 };
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use DomainException;
 use ReflectionClass;
 use TypeError;
@@ -58,9 +59,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
     private MappingDriver $mappingDriver;
 
     /**
-     * @var ClassMetadata<Entity>
+     * @var ClassMetadataInterface<Entity>
      */
-    private ClassMetadata $metadata;
+    private ClassMetadataInterface $metadata;
 
     /**
      * @param class-string<Entity> $fqcn
@@ -238,12 +239,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
      */
     private function findIdField(): array
     {
-        $md = new \Doctrine\ORM\Mapping\ClassMetadata(
-            $this->className,
-            //, $this->em->getConfiguration()->getNamingStrategy()
-        );
+        $md = new ClassMetadata($this->className);
         $md->initializeReflection(new RuntimeReflectionService());
-        // assert($md instanceof \Doctrine\Persistence\Mapping\ClassMetadata);
         $this->metadata = $md;
         $this->mappingDriver->loadMetadataForClass($this->className, $md);
 
