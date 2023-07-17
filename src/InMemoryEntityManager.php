@@ -36,11 +36,8 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * This holds all of the InMemoryRepository objects, which will be lazily
      * instantiated as they are first used.
-     *
-     * @template Entity of object
-     * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
-    private $repos = [];
+    private RepositoryContainer $repos;
 
     /**
      * Default instance, for performance
@@ -54,14 +51,12 @@ class InMemoryEntityManager implements EntityManagerInterface
     private MappingDriver $mappingDriver;
 
     /**
-     * @template Entity of object
-     * @var array<class-string<Entity>, array<Entity>>
+     * @var array<class-string, object[]>
      */
     private $needIds = [];
 
     /**
-     * @template Entity of object
-     * @var array<class-string<Entity>, array<Entity>>
+     * @var array<class-string, object[]>
      */
     private $pendingDeletes = [];
 
@@ -82,6 +77,7 @@ class InMemoryEntityManager implements EntityManagerInterface
             $driver = self::getDefaultMappingDriver();
         }
         $this->mappingDriver = $driver;
+        $this->repos = new RepositoryContainer();
     }
 
     public function addOnFlushCallback(callable $callback): void
@@ -207,11 +203,6 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function flush()
     {
-        /**
-         * @template Entity of object
-         * @var class-string<Entity> $className
-         * @var Entity[] $entities
-         */
         foreach ($this->pendingDeletes as $className => $entities) {
             $repo = $this->getRepository($className);
             foreach ($entities as $entity) {
@@ -220,11 +211,6 @@ class InMemoryEntityManager implements EntityManagerInterface
         }
         $this->pendingDeletes = [];
 
-        /**
-         * @template Entity of object
-         * @var class-string<Entity> $className
-         * @var Entity[] $entities
-         */
         foreach ($this->needIds as $className => $entities) {
             $repo = $this->getRepository($className);
             if (!$repo->isIdGenerated()) {
@@ -259,12 +245,11 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function getRepository($className)
     {
-        // https://github.com/phpstan/phpstan/issues/2761
-        if (!isset($this->repos[$className])) {
-            $this->repos[$className] = new InMemoryRepository($className, $this->mappingDriver);
+        if (!$this->repos->has($className)) {
+            $this->repos->set($className, new InMemoryRepository($className, $this->mappingDriver));
         }
 
-        return $this->repos[$className];
+        return $this->repos->get($className);
     }
 
     /**

@@ -118,7 +118,6 @@ class CriteriaEvaluator
 
     /**
      * @return callable(mixed $entityValue): bool
-     * xeturn Entity[]
      */
     private function matchComparison(Comparison $expr): callable
     {
@@ -153,15 +152,20 @@ class CriteriaEvaluator
             case Comparison::LTE:
                 return fn ($entVal) => $entVal <= $value;
             case Comparison::IN:
+                assert(is_array($value));
                 return fn ($entVal) => in_array($entVal, $value, true);
             case Comparison::NIN:
+                assert(is_array($value));
                 return fn ($entVal) => !in_array($entVal, $value, true);
             case Comparison::CONTAINS:
+                assert(is_string($value));
                 return fn ($entVal) => str_contains($entVal, $value);
             // TODO: case MEMBER_OF:
             case Comparison::STARTS_WITH:
+                assert(is_string($value));
                 return fn ($entVal) => str_starts_with($entVal, $value);
             case Comparison::ENDS_WITH:
+                assert(is_string($value));
                 return fn ($entVal) => str_ends_with($entVal, $value);
         }
         // Should be unreachable
