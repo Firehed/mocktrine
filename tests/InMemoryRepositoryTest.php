@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
