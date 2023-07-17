@@ -88,6 +88,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
 
         assert(count($ids) === 1);
         $idField = $ids[0];
+        assert(is_string($idField));
         $this->idField = $idField;
         $idType = $metadata->getTypeOfField($idField);
         assert($idType !== null);
