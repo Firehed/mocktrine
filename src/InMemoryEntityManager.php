@@ -51,14 +51,12 @@ class InMemoryEntityManager implements EntityManagerInterface
     private MappingDriver $mappingDriver;
 
     /**
-     * @template Entity of object
-     * @var array<class-string<Entity>, array<Entity>>
+     * @var array<class-string, object[]>
      */
     private $needIds = [];
 
     /**
-     * @template Entity of object
-     * @var array<class-string<Entity>, array<Entity>>
+     * @var array<class-string, object[]>
      */
     private $pendingDeletes = [];
 
@@ -205,11 +203,6 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function flush()
     {
-        /**
-         * @template Entity of object
-         * @var class-string<Entity> $className
-         * @var Entity[] $entities
-         */
         foreach ($this->pendingDeletes as $className => $entities) {
             $repo = $this->getRepository($className);
             foreach ($entities as $entity) {
@@ -218,11 +211,6 @@ class InMemoryEntityManager implements EntityManagerInterface
         }
         $this->pendingDeletes = [];
 
-        /**
-         * @template Entity of object
-         * @var class-string<Entity> $className
-         * @var Entity[] $entities
-         */
         foreach ($this->needIds as $className => $entities) {
             $repo = $this->getRepository($className);
             if (!$repo->isIdGenerated()) {
