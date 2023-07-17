@@ -36,11 +36,8 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * This holds all of the InMemoryRepository objects, which will be lazily
      * instantiated as they are first used.
-     *
-     * @template Entity of object
-     * @var array<class-string<Entity>, InMemoryRepository<Entity>>
      */
-    private $repos = [];
+    private RepositoryContainer $repos;
 
     /**
      * Default instance, for performance
@@ -82,6 +79,7 @@ class InMemoryEntityManager implements EntityManagerInterface
             $driver = self::getDefaultMappingDriver();
         }
         $this->mappingDriver = $driver;
+        $this->repos = new RepositoryContainer();
     }
 
     public function addOnFlushCallback(callable $callback): void
@@ -259,12 +257,11 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function getRepository($className)
     {
-        // https://github.com/phpstan/phpstan/issues/2761
-        if (!isset($this->repos[$className])) {
-            $this->repos[$className] = new InMemoryRepository($className, $this->mappingDriver);
+        if (!$this->repos->has($className)) {
+            $this->repos->set($className, new InMemoryRepository($className, $this->mappingDriver));
         }
 
-        return $this->repos[$className];
+        return $this->repos->get($className);
     }
 
     /**
