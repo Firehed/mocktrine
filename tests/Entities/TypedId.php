@@ -7,17 +7,17 @@ namespace Firehed\Mocktrine\Entities;
 use Doctrine\ORM\Mapping;
 
 /**
- * @Entity
- * @Table(name="typed_ids")
+ * @Mapping\Entity
+ * @Mapping\Table(name="typed_ids")
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'typed_ids')]
 class TypedId
 {
     /**
-     * @Id
-     * @Column
-     * @GeneratedValue
+     * @Mapping\Id
+     * @Mapping\Column
+     * @Mapping\GeneratedValue
      */
     #[Mapping\Id]
     #[Mapping\Column]

@@ -7,8 +7,8 @@ namespace Firehed\Mocktrine\Entities;
 use Doctrine\ORM\Mapping;
 
 /**
- * @Entity
- * @Table(name="groups")
+ * @Mapping\Entity
+ * @Mapping\Table(name="groups")
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'groups')]

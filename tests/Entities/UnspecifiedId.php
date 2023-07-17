@@ -7,17 +7,17 @@ namespace Firehed\Mocktrine\Entities;
 use Doctrine\ORM\Mapping;
 
 /**
- * @Entity
- * @Table(name="unspecified_ids")
+ * @Mapping\Entity
+ * @Mapping\Table(name="unspecified_ids")
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'unspecified_ids')]
 class UnspecifiedId
 {
     /**
-     * @Id
-     * @Column
-     * @GeneratedValue
+     * @Mapping\Id
+     * @Mapping\Column
+     * @Mapping\GeneratedValue
      * @var ?string
      */
     #[Mapping\Id]
