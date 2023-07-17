@@ -25,12 +25,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        if (class_exists(SimpleAnnotationReader::class)) {
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-        } else {
-            $reader = new AnnotationReader();
-        }
+        $reader = new AnnotationReader();
         $this->driver = new AnnotationDriver($reader);
     }
 
