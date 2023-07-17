@@ -14,6 +14,13 @@ use Doctrine\ORM\{
  */
 class AttributeDriverTest extends InMemoryEntityManagerTest
 {
+    public function setUp(): void
+    {
+        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+            $this->markTestSkipped('Attribute tests require PHP8+');
+        }
+    }
+
     protected function getEntityManager(): InMemoryEntityManager
     {
         $driver = new Mapping\Driver\AttributeDriver([__DIR__ . '/Entities']);
