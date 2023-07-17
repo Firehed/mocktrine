@@ -228,6 +228,8 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /**
      * Selectable implementation
      * {@inheritdoc}
+     *
+     * @return Collection<array-key, Entity>
      */
     public function matching(Criteria $criteria): Collection
     {
