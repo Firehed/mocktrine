@@ -661,6 +661,12 @@ class InMemoryEntityManager implements EntityManagerInterface
             // worry about the relative path to the vendor/ directory.
             class_exists(DoctrineAnnotations::class);
             if (class_exists(SimpleAnnotationReader::class)) {
+                /**
+                 * In Annotations:2.x, SimpleAnnotationReader was removed. This
+                 * re-adds the type info that won't be available in high
+                 * dependencies.
+                 * @var \Doctrine\Common\Annotations\Reader&SimpleAnnotationReader
+                 */
                 $reader = new SimpleAnnotationReader();
                 $reader->addNamespace('Doctrine\ORM\Mapping');
             } else {
