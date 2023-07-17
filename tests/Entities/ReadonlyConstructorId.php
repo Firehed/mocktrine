@@ -7,16 +7,16 @@ namespace Firehed\Mocktrine\Entities;
 use Doctrine\ORM\Mapping;
 
 /**
- * @Entity
- * @Table(name="readonly_constructor_ids")
+ * @Mapping\Entity
+ * @Mapping\Table(name="readonly_constructor_ids")
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'readonly_constructor_ids')]
 class ReadonlyConstructorId
 {
     /**
-     * @Id
-     * @Column
+     * @Mapping\Id
+     * @Mapping\Column
      */
     #[Mapping\Id]
     #[Mapping\Column]

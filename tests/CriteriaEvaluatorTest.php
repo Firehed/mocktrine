@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use DateTimeImmutable;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
 
@@ -22,7 +24,8 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        $em = new InMemoryEntityManager();
+        $reader = new AnnotationReader();
+        $em = new InMemoryEntityManager(new AnnotationDriver($reader));
         $repo = $em->getRepository(GrabBag::class);
         $this->entities = [
             new GrabBag(true, 30, 'hello', new DateTimeImmutable()),

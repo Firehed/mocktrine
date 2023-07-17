@@ -35,7 +35,11 @@ $driver = $config->getMetadataDriverImpl();
 $em = new Mocktrine\InMemoryEntityManager($driver)
 ```
 
-If a driver is not provided, it will default to the `SimpleAnnotationReader` that's used via `Setup::createAnnotationMetadataConfiguration`.
+If a driver is not provided, it will default to either `SimpleAnnotationReader` or `AnnotationReader` that's used via `Setup::createAnnotationMetadataConfiguration`.
+The former will be preferred, but the class has been removed in `doctrine/annotations:2.0`; if your local dependencies allow that version then the latter will be used.
+
+It is RECOMMENDED to always explicitly provide a driver, as that best matches Doctrine's own setup behavior.
+Future versions of this library may make this required.
 
 ## Supported features
 

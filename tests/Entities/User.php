@@ -8,17 +8,17 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping;
 
 /**
- * @Entity
- * @Table(name="users")
+ * @Mapping\Entity
+ * @Mapping\Table(name="users")
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'users')]
 class User
 {
     /**
-     * @Id
-     * @Column(type="integer")
-     * @GeneratedValue
+     * @Mapping\Id
+     * @Mapping\Column(type="integer")
+     * @Mapping\GeneratedValue
      * @var ?int
      */
     #[Mapping\Id]
@@ -27,21 +27,21 @@ class User
     private $id;
 
     /**
-     * @Column
+     * @Mapping\Column
      * @var string
      */
     #[Mapping\Column]
     private $email;
 
     /**
-     * @Column(type="boolean")
+     * @Mapping\Column(type="boolean")
      * @var bool
      */
     #[Mapping\Column(type: Types::BOOLEAN)]
     private $active = false;
 
     /**
-     * @Column(name="last_name")
+     * @Mapping\Column(name="last_name")
      * @var string
      */
     #[Mapping\Column]
