@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine\Entities;
 
+use Doctrine\ORM\Mapping;
+
 /**
  * @Entity
  * @Table(name="nodes")
  */
+#[Mapping\Entity]
+#[Mapping\Table(name: 'nodes')]
 class Node
 {
     /**
@@ -15,6 +19,8 @@ class Node
      * @Column
      * @var string
      */
+    #[Mapping\Id]
+    #[Mapping\Column]
     private $nodeId;
 
     public function __construct()
