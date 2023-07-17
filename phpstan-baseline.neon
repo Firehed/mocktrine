@@ -36,6 +36,11 @@ parameters:
 			path: tests/Entities/GrabBag.php
 
 		-
+			message: "#^Class Firehed\\\\Mocktrine\\\\Entities\\\\ReadonlyGeneratedId has an uninitialized readonly property \\$id\\. Assign it in the constructor\\.$#"
+			count: 1
+			path: tests/Entities/ReadonlyGeneratedId.php
+
+		-
 			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\StringId\\:\\:\\$id is never written, only read\\.$#"
 			count: 1
 			path: tests/Entities/StringId.php

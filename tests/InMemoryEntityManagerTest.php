@@ -182,4 +182,28 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $foundStringId = $em->find(Entities\StringId::class, $stringId->getId());
         $this->assertSame($foundStringId, $stringId);
     }
+
+    public function testGeneratedReadonlyIdWorks(): void
+    {
+        if (version_compare(PHP_VERSION, '8.1.0', '<')) {
+            $this->markTestSkipped('Readonly properties need 8.1+');
+        }
+        $rgid = new Entities\ReadonlyGeneratedId();
+        $em = $this->getEntityManager();
+        $em->persist($rgid);
+        $em->flush();
+        $this->assertIsInt($rgid->id);
+    }
+
+    public function testConstructorAssignedReadonlyIdWorks(): void
+    {
+        if (version_compare(PHP_VERSION, '8.1.0', '<')) {
+            $this->markTestSkipped('Readonly properties need 8.1+');
+        }
+        $rgid = new Entities\ReadonlyConstructorId();
+        $em = $this->getEntityManager();
+        $em->persist($rgid);
+        $em->flush();
+        $this->assertIsString($rgid->id);
+    }
 }
