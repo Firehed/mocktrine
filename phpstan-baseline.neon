@@ -41,6 +41,11 @@ parameters:
 			path: tests/Entities/StringId.php
 
 		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\TypedId\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: tests/Entities/TypedId.php
+
+		-
 			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\UnspecifiedId\\:\\:\\$id is never written, only read\\.$#"
 			count: 1
 			path: tests/Entities/UnspecifiedId.php
