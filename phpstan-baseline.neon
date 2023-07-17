@@ -1,22 +1,67 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Array \\(array\\<class\\-string\\<Entity of object\\>, Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\>\\) does not accept Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\.$#"
+			message: "#^Return type \\(Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\) of method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should be compatible with return type \\(Doctrine\\\\ORM\\\\EntityRepository\\<object\\>\\) of method Doctrine\\\\ORM\\\\EntityManagerInterface\\:\\:getRepository\\(\\)$#"
 			count: 1
 			path: src/InMemoryEntityManager.php
 
 		-
-			message: "#^Array \\(array\\<class\\-string\\<Entity of object\\>, Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\>\\) does not accept key class\\-string\\<Entity of object\\>\\.$#"
+			message: "#^Property Firehed\\\\Mocktrine\\\\RepositoryContainer\\:\\:\\$values with generic class Firehed\\\\Mocktrine\\\\InMemoryRepository does not specify its types\\: Entity$#"
 			count: 1
-			path: src/InMemoryEntityManager.php
+			path: src/RepositoryContainer.php
 
 		-
-			message: "#^Method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should return Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\> but returns Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\|Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\.$#"
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$boolField is never read, only written\\.$#"
 			count: 1
-			path: src/InMemoryEntityManager.php
+			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Return type \\(Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\) of method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should be compatible with return type \\(Doctrine\\\\ORM\\\\EntityRepository\\<mixed\\>\\) of method Doctrine\\\\ORM\\\\EntityManagerInterface\\:\\:getRepository\\(\\)$#"
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$dateField is never read, only written\\.$#"
 			count: 1
-			path: src/InMemoryEntityManager.php
+			path: tests/Entities/GrabBag.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$floatField is never read, only written\\.$#"
+			count: 1
+			path: tests/Entities/GrabBag.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$id is unused\\.$#"
+			count: 1
+			path: tests/Entities/GrabBag.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$strField is never read, only written\\.$#"
+			count: 1
+			path: tests/Entities/GrabBag.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\StringId\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: tests/Entities/StringId.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\UnspecifiedId\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: tests/Entities/UnspecifiedId.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\User\\:\\:\\$active is never read, only written\\.$#"
+			count: 1
+			path: tests/Entities/User.php
+
+		-
+			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\User\\:\\:\\$notAColumn is never read, only written\\.$#"
+			count: 1
+			path: tests/Entities/User.php
+
+		-
+			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'First callback did…' will always evaluate to false\\.$#"
+			count: 1
+			path: tests/InMemoryEntityManagerTest.php
+
+		-
+			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'Second callback did…' will always evaluate to false\\.$#"
+			count: 1
+			path: tests/InMemoryEntityManagerTest.php
 
