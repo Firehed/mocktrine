@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\ORM\{
     Configuration,
@@ -659,8 +660,12 @@ class InMemoryEntityManager implements EntityManagerInterface
             // the file through normal Composer autoloading and avoid having to
             // worry about the relative path to the vendor/ directory.
             class_exists(DoctrineAnnotations::class);
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
+            if (class_exists(SimpleAnnotationReader::class)) {
+                $reader = new SimpleAnnotationReader();
+                $reader->addNamespace('Doctrine\ORM\Mapping');
+            } else {
+                $reader = new AnnotationReader();
+            }
             self::$defaultMappingDriver = new AnnotationDriver($reader);
         }
         return self::$defaultMappingDriver;
