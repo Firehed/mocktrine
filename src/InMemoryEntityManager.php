@@ -360,12 +360,13 @@ class InMemoryEntityManager implements EntityManagerInterface
      * the transaction is rolled back, the EntityManager closed and the exception re-thrown.
      *
      * @param callable $func The function to execute transactionally.
+     * @deprecated
      *
      * @return mixed The non-empty value returned from the closure or true instead.
      */
     public function transactional($func)
     {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
+        return $this->wrapInTransaction($func);
     }
 
     /**
@@ -666,5 +667,6 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     public function wrapInTransaction(callable $func): mixed
     {
+        throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 }
