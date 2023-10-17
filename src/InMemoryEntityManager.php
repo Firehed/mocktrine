@@ -676,4 +676,8 @@ class InMemoryEntityManager implements EntityManagerInterface
         }
         return self::$defaultMappingDriver;
     }
+
+    public function wrapInTransaction(callable $func): mixed
+    {
+    }
 }
