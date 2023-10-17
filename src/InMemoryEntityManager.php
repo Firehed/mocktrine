@@ -447,7 +447,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @throws ORMException
      */
-    public function getReference($entityName, $id)
+    public function getReference($entityName, $id): ?object
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -481,10 +481,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Closes the EntityManager. All entities that are currently managed
      * by this EntityManager become detached. The EntityManager may no longer
      * be used after it is closed.
-     *
-     * @return void
      */
-    public function close()
+    public function close(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -511,12 +509,10 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @param int      $lockMode
      * @param int|null $lockVersion
      *
-     * @return void
-     *
      * @throws OptimisticLockException
      * @throws PessimisticLockException
      */
-    public function lock($entity, $lockMode, $lockVersion = null)
+    public function lock($entity, $lockMode, $lockVersion = null): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
