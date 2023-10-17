@@ -335,20 +335,16 @@ class InMemoryEntityManager implements EntityManagerInterface
      *     $qb->select('u')->from('User', 'u')
      *         ->where($expr->orX($expr->eq('u.id', 1), $expr->eq('u.id', 2)));
      * </code>
-     *
-     * @return \Doctrine\ORM\Query\Expr
      */
-    public function getExpressionBuilder()
+    public function getExpressionBuilder(): Query\Expr
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Starts a transaction on the underlying database connection.
-     *
-     * @return void
      */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
