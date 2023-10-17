@@ -519,20 +519,16 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Gets the EventManager used by the EntityManager.
-     *
-     * @return \Doctrine\Common\EventManager
      */
-    public function getEventManager()
+    public function getEventManager(): \Doctrine\Common\EventManager
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the Configuration used by the EntityManager.
-     *
-     * @return Configuration
      */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -576,51 +572,41 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @param string|int $hydrationMode
      *
-     * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
-     *
      * @throws ORMException
      */
-    public function newHydrator($hydrationMode)
+    public function newHydrator($hydrationMode): \Doctrine\ORM\Internal\Hydration\AbstractHydrator
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the proxy factory used by the EntityManager to create entity proxies.
-     *
-     * @return \Doctrine\ORM\Proxy\ProxyFactory
      */
-    public function getProxyFactory()
+    public function getProxyFactory(): \Doctrine\ORM\Proxy\ProxyFactory
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the enabled filters.
-     *
-     * @return \Doctrine\ORM\Query\FilterCollection The active filter collection.
      */
-    public function getFilters()
+    public function getFilters(): \Doctrine\ORM\Query\FilterCollection
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Checks whether the state of the filter collection is clean.
-     *
-     * @return boolean True, if the filter collection is clean.
      */
-    public function isFiltersStateClean()
+    public function isFiltersStateClean(): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Checks whether the Entity Manager has filters.
-     *
-     * @return boolean True, if the EM has a filter collection.
      */
-    public function hasFilters()
+    public function hasFilters(): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
