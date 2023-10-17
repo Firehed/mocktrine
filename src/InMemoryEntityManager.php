@@ -192,10 +192,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * overriding any local changes that have not yet been persisted.
      *
      * @param object $object The object to refresh.
-     *
-     * @return void
      */
-    public function refresh($object)
+    public function refresh($object, LockMode|int|null $lockMode = null): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -267,9 +265,9 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @template T of object
      * @param class-string<T> $className
      *
-     * @return ClassMetadata<T>
+     * return ClassMetadata<T>
      */
-    public function getClassMetadata($className)
+    public function getClassMetadata($className): \Doctrine\ORM\Mapping\ClassMetadata
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -277,9 +275,9 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the metadata factory used to gather the metadata of classes.
      *
-     * @return ClassMetadataFactory<ClassMetadata<object>>
+     * return ClassMetadataFactory<ClassMetadata<object>>
      */
-    public function getMetadataFactory()
+    public function getMetadataFactory(): \Doctrine\ORM\Mapping\ClassMetadataFactory&ClassMetadataFactory
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -389,10 +387,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Creates a new Query object.
      *
      * @param string $dql The DQL string.
-     *
-     * @return Query
      */
-    public function createQuery($dql = '')
+    public function createQuery($dql = ''): Query
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -414,10 +410,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @param string           $sql
      * @param ResultSetMapping $rsm The ResultSetMapping to use.
-     *
-     * @return NativeQuery
      */
-    public function createNativeQuery($sql, ResultSetMapping $rsm)
+    public function createNativeQuery($sql, ResultSetMapping $rsm): NativeQuery
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -436,10 +430,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Create a QueryBuilder instance
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -560,10 +552,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Gets the UnitOfWork used by the EntityManager to coordinate operations.
-     *
-     * @return UnitOfWork
      */
-    public function getUnitOfWork()
+    public function getUnitOfWork(): \Doctrine\ORM\UnitOfWork
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
