@@ -7,7 +7,11 @@ namespace Firehed\Mocktrine;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
+use Doctrine\DBAL\{
+    Connection,
+};
 use Doctrine\ORM\{
+    Cache,
     Configuration,
     EntityManagerInterface,
     NativeQuery,
@@ -296,11 +300,10 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
      *
+     * @deprecated
      * @param object $object
-     *
-     * @return bool
      */
-    public function contains($object)
+    public function contains($object): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -309,20 +312,16 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Returns the cache API for managing the second level cache regions or NULL if the cache is not enabled.
-     *
-     * @return \Doctrine\ORM\Cache|null
      */
-    public function getCache()
+    public function getCache(): ?Cache
     {
         return null;
     }
 
     /**
      * Gets the database connection object used by the EntityManager.
-     *
-     * @return \Doctrine\DBAL\Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -377,20 +376,16 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Commits a transaction on the underlying database connection.
-     *
-     * @return void
      */
-    public function commit()
+    public function commit(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Performs a rollback on the underlying database connection.
-     *
-     * @return void
      */
-    public function rollback()
+    public function rollback(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -561,10 +556,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Check if the Entity manager is open or closed.
-     *
-     * @return bool
      */
-    public function isOpen()
+    public function isOpen(): bool
     {
         // No database connection, always open.
         return true;
