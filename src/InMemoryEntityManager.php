@@ -9,6 +9,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\DBAL\{
     Connection,
+    LockMode,
 };
 use Doctrine\ORM\{
     Cache,
@@ -103,7 +104,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @return ?Entity The found object.
      */
-    public function find($className, $id)
+    public function find(string $className, mixed $id, LockMode|int|null $lockMode = null, ?int $lockVersion = null): ?object
     {
         return $this->getRepository($className)->find($id);
     }
@@ -299,11 +300,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
-     *
-     * @deprecated
-     * @param object $object
      */
-    public function contains($object): bool
+    public function contains(object $object): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
