@@ -247,7 +247,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @param class-string<Entity> $className
      * @return InMemoryRepository<Entity>
      */
-    public function getRepository($className)
+    public function getRepository($className): InMemoryRepository
     {
         if (!$this->repos->has($className)) {
             $this->repos->set($className, new InMemoryRepository($className, $this->mappingDriver));

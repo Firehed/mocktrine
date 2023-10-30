@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Collections\{
+    AbstractLazyCollection,
     ArrayCollection,
     Collection,
     Criteria,
@@ -17,6 +18,7 @@ use Doctrine\Persistence\Mapping\{
 };
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Mapping\{
     ClassMetadata,
@@ -42,8 +44,10 @@ use function trim;
  *
  * @implements ObjectRepository<Entity>
  * @implements Selectable<array-key, Entity>
+ *
+ * @extends EntityRepository<Entity>
  */
-class InMemoryRepository implements ObjectRepository, Selectable
+class InMemoryRepository extends EntityRepository implements ObjectRepository, Selectable
 {
     /**
      * @var class-string<Entity>
@@ -134,7 +138,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return ?Entity The object.
      */
-    public function find($id)
+    public function find($id, $lockMode = null, $lockVersion = null): ?object
     {
         return $this->findOneBy([$this->idField => $id]);
     }
@@ -144,7 +148,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return Entity[] The objects.
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->findBy([]);
     }
@@ -165,7 +169,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @throws UnexpectedValueException
      */
-    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null): array
     {
         $expr = Criteria::expr();
         $crit = Criteria::create();
@@ -206,7 +210,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return ?Entity The object.
      */
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria, $orderBy = null): ?object
     {
         $results = $this->findBy($criteria);
         if (count($results) > 0) {
@@ -231,7 +235,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return Collection<array-key, Entity>
      */
-    public function matching(Criteria $criteria): Collection
+    public function matching(Criteria $criteria): Collection&AbstractLazyCollection&Selectable
     {
         return new ArrayCollection($this->doMatch($criteria));
     }
