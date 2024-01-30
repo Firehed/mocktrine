@@ -74,6 +74,18 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('2@example.com', $results[1]->getEmail());
     }
 
+    public function testCount(): void
+    {
+        $repo = $this->getFixture();
+        self::assertSame(5, $repo->count([]));
+        self::assertSame(2, $repo->count(['lastName' => 'last']));
+        self::assertSame(3, $repo->count(['lastName' => 'other']));
+        self::assertSame(1, $repo->count(['email' => '1@example.com', 'lastName' => 'last']));
+        self::assertSame(0, $repo->count(['email' => '1@example.com', 'lastName' => 'other']));
+        self::assertSame(1, $repo->count(['email' => '1@example.com']));
+        self::assertSame(0, $repo->count(['email' => '6@example.com']));
+    }
+
     public function testFindByWithArrayValue(): void
     {
         $repo = $this->getFixture();
