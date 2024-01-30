@@ -200,6 +200,19 @@ class InMemoryRepository implements ObjectRepository, Selectable
     }
 
     /**
+     * Counts entities by a set of critieria.
+     *
+     * NOTE: this is not part of the official interface; there's
+     * a Doctrine-internal TODO to make it so.
+     *
+     * @param array<string, mixed> $criteria
+     */
+    public function count(array $criteria): int
+    {
+        return count($this->findBy($criteria));
+    }
+
+    /**
      * Finds a single object by a set of criteria.
      *
      * @param mixed[] $criteria The criteria.
