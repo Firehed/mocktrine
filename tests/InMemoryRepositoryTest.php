@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
@@ -24,8 +23,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        $reader = new AnnotationReader();
-        $this->driver = new AnnotationDriver($reader);
+        $this->driver = new AttributeDriver(['.']);
     }
 
     public function testConstruct(): void
