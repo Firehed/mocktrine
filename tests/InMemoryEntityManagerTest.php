@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\ObjectRepository;
 
 /**
@@ -16,8 +15,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 {
     protected function getEntityManager(): InMemoryEntityManager
     {
-        $reader = new AnnotationReader();
-        return new InMemoryEntityManager(new AnnotationDriver($reader));
+        return new InMemoryEntityManager(new AttributeDriver(['.']));
     }
 
     public function testFindWithNoEntity(): void
