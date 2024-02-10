@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use BadMethodCallException;
 use Doctrine\Common\Collections\{
     AbstractLazyCollection,
     Collection,
@@ -15,13 +16,23 @@ use Doctrine\Common\Collections\{
  *
  * force AbstractLazyCollection instead of simple ReadableCollection
  *
+ * @template TKey of array-key
+ * @template T of object
+ *
+ * @extends AbstractLazyCollection<TKey, T>
+ * @implements Selectable<TKey, T>
+ *
  * @internal
  */
 class ArrayALC extends AbstractLazyCollection implements Selectable
 {
+    /**
+     * @param Collection<TKey, T> $collection
+     */
     public function __construct(
-        protected ?Collection $collection,
+        Collection $collection,
     ) {
+        $this->collection = $collection;
     }
 
     protected function doInitialize(): void
@@ -31,5 +42,6 @@ class ArrayALC extends AbstractLazyCollection implements Selectable
 
     public function matching($criteria)
     {
+        throw new BadMethodCallException('Nested matching not supported');
     }
 }
