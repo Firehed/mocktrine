@@ -27,7 +27,7 @@ jobs:
           - '8.3'
         orm:
           - '2.*'
-          - '3.0.0-beta1'
+          - '3.0.0'
 
     steps:
       - name: Check out code
