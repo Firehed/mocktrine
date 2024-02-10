@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\{
     Expr,
     Selectable,
 };
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\Mapping\{
     ClassMetadata as ClassMetadataInterface,
     RuntimeReflectionService,
@@ -138,7 +139,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      *
      * @return ?Entity The object.
      */
-    public function find($id, $lockMode = null, $lockVersion = null): ?object
+    public function find($id, LockMode|int|null $lockMode = null, ?int $lockVersion = null): ?object
     {
         return $this->findOneBy([$this->idField => $id]);
     }
@@ -233,11 +234,11 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * Selectable implementation
      * {@inheritdoc}
      *
-     * @return Collection<array-key, Entity>
+     * return Collection<array-key, Entity>
      */
     public function matching(Criteria $criteria): Collection&AbstractLazyCollection&Selectable
     {
-        return new ArrayCollection($this->doMatch($criteria));
+        return new ArrayALC(new ArrayCollection($this->doMatch($criteria)));
     }
 
     /**
