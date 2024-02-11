@@ -25,6 +25,7 @@ use Doctrine\ORM\Mapping\{
     ClassMetadata,
     MappingException,
 };
+use Doctrine\ORM\Persisters\Exception\InvalidOrientation;
 use DomainException;
 use ReflectionClass;
 use TypeError;
@@ -189,7 +190,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
             foreach ($orderBy as $field => $direction) {
                 $direction = strtoupper(trim($direction));
                 if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
-                    throw ORMException::invalidOrientation($this->getClassName(), $field);
+                    throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field);
                 }
             }
             $crit->orderBy($orderBy);
