@@ -6,7 +6,7 @@ namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectRepository;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
