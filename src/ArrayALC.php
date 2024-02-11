@@ -7,6 +7,7 @@ namespace Firehed\Mocktrine;
 use BadMethodCallException;
 use Doctrine\Common\Collections\{
     AbstractLazyCollection,
+    Criteria,
     Collection,
     Selectable,
 };
@@ -40,7 +41,7 @@ class ArrayALC extends AbstractLazyCollection implements Selectable
         // no-op, constructor does this
     }
 
-    public function matching($criteria)
+    public function matching(Criteria $criteria)
     {
         throw new BadMethodCallException('Nested matching not supported');
     }
