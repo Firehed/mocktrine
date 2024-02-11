@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\SimpleAnnotationReader;
+use Doctrine\DBAL\{
+    Connection,
+    LockMode,
+};
 use Doctrine\ORM\{
+    Cache,
     Configuration,
     EntityManagerInterface,
+    Exception\ORMException,
     NativeQuery,
-    ORMException,
     OptimisticLockException,
     PessimisticLockException,
     Query,
@@ -19,10 +21,7 @@ use Doctrine\ORM\{
     Query\ResultSetMapping,
     UnitOfWork,
 };
-use Doctrine\ORM\Mapping\{
-    Driver\AnnotationDriver,
-    Driver\DoctrineAnnotations,
-};
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\{
     ClassMetadata,
     ClassMetadataFactory,
@@ -99,8 +98,12 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @return ?Entity The found object.
      */
-    public function find($className, $id)
-    {
+    public function find(
+        string $className,
+        mixed $id,
+        LockMode|int|null $lockMode = null,
+        ?int $lockVersion = null,
+    ): ?object {
         return $this->getRepository($className)->find($id);
     }
 
@@ -187,10 +190,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * overriding any local changes that have not yet been persisted.
      *
      * @param object $object The object to refresh.
-     *
-     * @return void
      */
-    public function refresh($object)
+    public function refresh($object, LockMode|int|null $lockMode = null): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -244,7 +245,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @param class-string<Entity> $className
      * @return InMemoryRepository<Entity>
      */
-    public function getRepository($className)
+    public function getRepository($className): InMemoryRepository
     {
         if (!$this->repos->has($className)) {
             $this->repos->set($className, new InMemoryRepository($className, $this->mappingDriver));
@@ -262,9 +263,9 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @template T of object
      * @param class-string<T> $className
      *
-     * @return ClassMetadata<T>
+     * return ClassMetadata<T>
      */
-    public function getClassMetadata($className)
+    public function getClassMetadata($className): \Doctrine\ORM\Mapping\ClassMetadata
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -272,9 +273,9 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Gets the metadata factory used to gather the metadata of classes.
      *
-     * @return ClassMetadataFactory<ClassMetadata<object>>
+     * return ClassMetadataFactory<ClassMetadata<object>>
      */
-    public function getMetadataFactory()
+    public function getMetadataFactory(): never
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -295,12 +296,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
-     *
-     * @param object $object
-     *
-     * @return bool
      */
-    public function contains($object)
+    public function contains(object $object): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -309,20 +306,16 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Returns the cache API for managing the second level cache regions or NULL if the cache is not enabled.
-     *
-     * @return \Doctrine\ORM\Cache|null
      */
-    public function getCache()
+    public function getCache(): ?Cache
     {
         return null;
     }
 
     /**
      * Gets the database connection object used by the EntityManager.
-     *
-     * @return \Doctrine\DBAL\Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -338,20 +331,16 @@ class InMemoryEntityManager implements EntityManagerInterface
      *     $qb->select('u')->from('User', 'u')
      *         ->where($expr->orX($expr->eq('u.id', 1), $expr->eq('u.id', 2)));
      * </code>
-     *
-     * @return \Doctrine\ORM\Query\Expr
      */
-    public function getExpressionBuilder()
+    public function getExpressionBuilder(): Query\Expr
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Starts a transaction on the underlying database connection.
-     *
-     * @return void
      */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -367,30 +356,27 @@ class InMemoryEntityManager implements EntityManagerInterface
      * the transaction is rolled back, the EntityManager closed and the exception re-thrown.
      *
      * @param callable $func The function to execute transactionally.
+     * @deprecated
      *
      * @return mixed The non-empty value returned from the closure or true instead.
      */
     public function transactional($func)
     {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
+        return $this->wrapInTransaction($func);
     }
 
     /**
      * Commits a transaction on the underlying database connection.
-     *
-     * @return void
      */
-    public function commit()
+    public function commit(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Performs a rollback on the underlying database connection.
-     *
-     * @return void
      */
-    public function rollback()
+    public function rollback(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -399,10 +385,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Creates a new Query object.
      *
      * @param string $dql The DQL string.
-     *
-     * @return Query
      */
-    public function createQuery($dql = '')
+    public function createQuery($dql = ''): Query
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -424,10 +408,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @param string           $sql
      * @param ResultSetMapping $rsm The ResultSetMapping to use.
-     *
-     * @return NativeQuery
      */
-    public function createNativeQuery($sql, ResultSetMapping $rsm)
+    public function createNativeQuery($sql, ResultSetMapping $rsm): NativeQuery
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -446,10 +428,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Create a QueryBuilder instance
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -465,7 +445,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @throws ORMException
      */
-    public function getReference($entityName, $id)
+    public function getReference($entityName, $id): ?object
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -499,10 +479,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Closes the EntityManager. All entities that are currently managed
      * by this EntityManager become detached. The EntityManager may no longer
      * be used after it is closed.
-     *
-     * @return void
      */
-    public function close()
+    public function close(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -529,42 +507,34 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @param int      $lockMode
      * @param int|null $lockVersion
      *
-     * @return void
-     *
      * @throws OptimisticLockException
      * @throws PessimisticLockException
      */
-    public function lock($entity, $lockMode, $lockVersion = null)
+    public function lock($entity, $lockMode, $lockVersion = null): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the EventManager used by the EntityManager.
-     *
-     * @return \Doctrine\Common\EventManager
      */
-    public function getEventManager()
+    public function getEventManager(): \Doctrine\Common\EventManager
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the Configuration used by the EntityManager.
-     *
-     * @return Configuration
      */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Check if the Entity manager is open or closed.
-     *
-     * @return bool
      */
-    public function isOpen()
+    public function isOpen(): bool
     {
         // No database connection, always open.
         return true;
@@ -572,10 +542,8 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Gets the UnitOfWork used by the EntityManager to coordinate operations.
-     *
-     * @return UnitOfWork
      */
-    public function getUnitOfWork()
+    public function getUnitOfWork(): \Doctrine\ORM\UnitOfWork
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -602,78 +570,61 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @param string|int $hydrationMode
      *
-     * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
-     *
      * @throws ORMException
      */
-    public function newHydrator($hydrationMode)
+    public function newHydrator($hydrationMode): \Doctrine\ORM\Internal\Hydration\AbstractHydrator
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the proxy factory used by the EntityManager to create entity proxies.
-     *
-     * @return \Doctrine\ORM\Proxy\ProxyFactory
      */
-    public function getProxyFactory()
+    public function getProxyFactory(): \Doctrine\ORM\Proxy\ProxyFactory
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Gets the enabled filters.
-     *
-     * @return \Doctrine\ORM\Query\FilterCollection The active filter collection.
      */
-    public function getFilters()
+    public function getFilters(): \Doctrine\ORM\Query\FilterCollection
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Checks whether the state of the filter collection is clean.
-     *
-     * @return boolean True, if the filter collection is clean.
      */
-    public function isFiltersStateClean()
+    public function isFiltersStateClean(): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Checks whether the Entity Manager has filters.
-     *
-     * @return boolean True, if the EM has a filter collection.
      */
-    public function hasFilters()
+    public function hasFilters(): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
+    }
+
+    public static function setDefaultMappingDriver(MappingDriver $driver): void
+    {
+        self::$defaultMappingDriver = $driver;
     }
 
     private static function getDefaultMappingDriver(): MappingDriver
     {
         if (self::$defaultMappingDriver === null) {
-            // Hack: reproduce the logic of AnnotationRegistry::registerFile,
-            // which is a weird autoloader of sorts. By using class_exists
-            // instead of AnnotationRegistry::registerFile(), we're able to hit
-            // the file through normal Composer autoloading and avoid having to
-            // worry about the relative path to the vendor/ directory.
-            class_exists(DoctrineAnnotations::class);
-            if (class_exists(SimpleAnnotationReader::class)) {
-                /**
-                 * In Annotations:2.x, SimpleAnnotationReader was removed. This
-                 * re-adds the type info that won't be available in high
-                 * dependencies.
-                 * @var \Doctrine\Common\Annotations\Reader&SimpleAnnotationReader
-                 */
-                $reader = new SimpleAnnotationReader();
-                $reader->addNamespace('Doctrine\ORM\Mapping');
-            } else {
-                $reader = new AnnotationReader();
-            }
-            self::$defaultMappingDriver = new AnnotationDriver($reader);
+            $driver = new AttributeDriver(['.']);
+            self::$defaultMappingDriver = $driver;
         }
         return self::$defaultMappingDriver;
+    }
+
+    public function wrapInTransaction(callable $func): mixed
+    {
+        throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 }

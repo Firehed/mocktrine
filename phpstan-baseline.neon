@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Return type \\(Firehed\\\\Mocktrine\\\\InMemoryRepository\\<Entity of object\\>\\) of method Firehed\\\\Mocktrine\\\\InMemoryEntityManager\\:\\:getRepository\\(\\) should be compatible with return type \\(Doctrine\\\\ORM\\\\EntityRepository\\<object\\>\\) of method Doctrine\\\\ORM\\\\EntityManagerInterface\\:\\:getRepository\\(\\)$#"
-			count: 1
-			path: src/InMemoryEntityManager.php
-
-		-
 			message: "#^Property Firehed\\\\Mocktrine\\\\RepositoryContainer\\:\\:\\$values with generic class Firehed\\\\Mocktrine\\\\InMemoryRepository does not specify its types\\: Entity$#"
 			count: 1
 			path: src/RepositoryContainer.php
