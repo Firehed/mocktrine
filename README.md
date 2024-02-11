@@ -53,7 +53,7 @@ The following methods on Doctrine's `EntityManagerInterface` should all work as 
 - getCache (will always return `null`)
 - isOpen (will always return `true`)
 
-All methods on the `ObjectRepository` (for various findBy operations) should also work.
+All methods on the `ObjectRepository` (for various findBy operations) should also work, as well as the non-interface `count($criteria)` method.
 `ObjectRepository` also implements the `Selectable` interface (as `EntityRepository` does, which is the returned type from `EntityManager`), so it's also possible to use the `matching(Criteria)` method.
 
 The following methods are **not** supported at this time:
