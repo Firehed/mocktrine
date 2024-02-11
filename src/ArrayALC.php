@@ -13,9 +13,13 @@ use Doctrine\Common\Collections\{
 };
 
 /**
- * see doctrine/orm#xxxx
+ * Since we're currently forced to extend EntityRepository instead of merely
+ * implementing the interface in orm:3, we're consequently forced to return an
+ * implementation-specific `AbstractLazyCollection` intead of the interface's
+ * `ReadableCollection`. This does some light wrapping to allow things to work
+ * for the common case.
  *
- * force AbstractLazyCollection instead of simple ReadableCollection
+ * @see doctrine/orm#11019
  *
  * @template TKey of array-key
  * @template T of object
