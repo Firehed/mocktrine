@@ -12,8 +12,8 @@ use Doctrine\ORM\{
     Cache,
     Configuration,
     EntityManagerInterface,
+    Exception\ORMException,
     NativeQuery,
-    ORMException,
     OptimisticLockException,
     PessimisticLockException,
     Query,
@@ -275,7 +275,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * return ClassMetadataFactory<ClassMetadata<object>>
      */
-    public function getMetadataFactory(): \Doctrine\ORM\Mapping\ClassMetadataFactory&ClassMetadataFactory
+    public function getMetadataFactory(): never
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
