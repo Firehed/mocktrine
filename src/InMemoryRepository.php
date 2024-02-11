@@ -213,7 +213,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      *
      * @param array<string, mixed> $criteria
      */
-    public function count(array $criteria): int
+    public function count(array $criteria = []): int
     {
         return count($this->findBy($criteria));
     }
