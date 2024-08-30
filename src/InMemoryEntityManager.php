@@ -94,15 +94,13 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @template Entity of object
      * @param class-string<Entity> $className
-     * @param mixed $id The identity of the object to find.
-     * @param LockMode|int|null $lockMode
      *
      * @return ?Entity The found object.
      */
     public function find(
-        $className,
-        $id,
-        $lockMode = null,
+        string $className,
+        mixed $id,
+        LockMode|int|null $lockMode = null,
         ?int $lockVersion = null,
     ): ?object {
         return $this->getRepository($className)->find($id);
@@ -441,14 +439,14 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Gets a reference to the entity identified by the given type and identifier
      * without actually loading it, if the entity is not yet loaded.
      *
-     * @param string $entityName The name of the entity type.
-     * @param mixed  $id         The entity identifier.
+     * @template T of object
+     * @param class-string<T> $entityName The name of the entity type.
      *
-     * @return object|null The entity reference.
+     * @return ?T The entity reference.
      *
      * @throws ORMException
      */
-    public function getReference($entityName, $id): ?object
+    public function getReference(string $entityName, mixed $id): ?object
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
