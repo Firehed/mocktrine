@@ -137,10 +137,12 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * Finds an object by its primary key / identifier.
      *
      * @param mixed $id The identifier.
+     * @param LockMode|int|null $lockMode
+     * @param ?int $lockVersion
      *
      * @return ?Entity The object.
      */
-    public function find($id, LockMode|int|null $lockMode = null, ?int $lockVersion = null): ?object
+    public function find($id, $lockMode = null, $lockVersion = null): ?object
     {
         return $this->findOneBy([$this->idField => $id]);
     }
