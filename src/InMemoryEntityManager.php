@@ -94,14 +94,15 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @template Entity of object
      * @param class-string<Entity> $className
-     * @param mixed  $id        The identity of the object to find.
+     * @param mixed $id The identity of the object to find.
+     * @param LockMode|int|null $lockMode
      *
      * @return ?Entity The found object.
      */
     public function find(
-        string $className,
-        mixed $id,
-        LockMode|int|null $lockMode = null,
+        $className,
+        $id,
+        $lockMode = null,
         ?int $lockVersion = null,
     ): ?object {
         return $this->getRepository($className)->find($id);
@@ -296,8 +297,10 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
+     *
+     * @param object $object
      */
-    public function contains(object $object): bool
+    public function contains($object): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
