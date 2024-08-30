@@ -72,7 +72,7 @@ jobs:
           --coverage-clover coverage.xml
           --coverage-text
           --log-junit junit.xml
-          ${{ matrix.dependencies == 'low' && '--config phpunit10.xml.dist' }}
+          ${{ matrix.dependencies == 'low' && '--config phpunit10.xml.dist' || '' }}
 
       - name: Submit code coverage
         if: ${{ always() }}
