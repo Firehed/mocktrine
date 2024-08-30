@@ -24,9 +24,6 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4-dev'
-        orm:
-          - '^2.9'
-          - '^3.0'
 
     steps:
       - name: Check out code
@@ -58,12 +55,6 @@ jobs:
           --no-progress
           --no-suggest
           --prefer-dist
-          ${{ matrix.dependencies == 'low' && '--prefer-lowest' || '' }}
-
-      - name: Get specific ORM version
-        run: composer update
-          doctrine/orm:'${{ matrix.orm }}'
-          --with-all-dependencies
           ${{ matrix.dependencies == 'low' && '--prefer-lowest' || '' }}
 
       - name: PHPUnit
