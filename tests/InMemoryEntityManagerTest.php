@@ -31,7 +31,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
     {
         $user = new Entities\User('1@example.com', 'last', 10);
         $em = $this->getEntityManager();
-        $em->merge($user); // This starts managing the entity
+        $em->persist($user); // This starts managing the entity
 
         $this->assertSame($user, $em->find(Entities\User::class, 10));
     }
@@ -95,7 +95,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
     {
         $node = new Entities\Node();
         $em = $this->getEntityManager();
-        $em->merge($node);
+        $em->persist($node);
         $this->assertSame(
             $node,
             $em->find(Entities\Node::class, $node->getNodeId()),
