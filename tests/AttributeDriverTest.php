@@ -8,10 +8,13 @@ use Doctrine\ORM\{
     EntityManagerInterface,
     Mapping,
 };
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @covers Firehed\Mocktrine\InMemoryEntityManager
- */
+#[CoversClass(InMemoryEntityManager::class)]
+#[Small]
 class AttributeDriverTest extends InMemoryEntityManagerTest
 {
     public function setUp(): void
