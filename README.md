@@ -87,3 +87,10 @@ The following methods are **not** supported at this time:
 - getFilters
 - isFiltersStateClean
 - hasFilters
+
+## ORM v2 Support
+
+As of Mocktrine, 1.0 and newer, Doctrine/ORM v3 is the only supported version.
+While it was originally a goal to support v2 and v3 in the same major version of Mocktrine, there are too many BC breaks for this to be practical.
+
+To use Mocktrine to test Doctrine/ORM v2 code, install the 0.x line.
