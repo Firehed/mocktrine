@@ -136,13 +136,9 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
     /**
      * Finds an object by its primary key / identifier.
      *
-     * @param mixed $id The identifier.
-     * @param LockMode|int|null $lockMode
-     * @param ?int $lockVersion
-     *
      * @return ?Entity The object.
      */
-    public function find($id, $lockMode = null, $lockVersion = null): ?object
+    public function find(mixed $id, LockMode|int|null $lockMode = null, ?int $lockVersion = null): ?object
     {
         return $this->findOneBy([$this->idField => $id]);
     }
@@ -166,14 +162,12 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      *
      * @param array<array-key, mixed>       $criteria
      * @param array<array-key, string>|null $orderBy
-     * @param int|null      $limit
-     * @param int|null      $offset
      *
      * @return Entity[] The objects.
      *
      * @throws UnexpectedValueException
      */
-    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null): array
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
         $expr = Criteria::expr();
         $crit = Criteria::create();
@@ -227,7 +221,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      *
      * @return ?Entity The object.
      */
-    public function findOneBy(array $criteria, $orderBy = null): ?object
+    public function findOneBy(array $criteria, ?array $orderBy = null): ?object
     {
         $results = $this->findBy($criteria);
         if (count($results) > 0) {
