@@ -47,7 +47,6 @@ The following methods on Doctrine's `EntityManagerInterface` should all work as 
 - find
 - persist
 - remove
-- merge
 - flush
 - getRepository
 - getCache (will always return `null`)

@@ -113,12 +113,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * NOTE: The persist operation always considers objects that are not yet known to
      * this ObjectManager as NEW. Do not pass detached objects to the persist operation.
-     *
-     * @param object $object The instance to make managed and persistent.
-     *
-     * @return void
      */
-    public function persist($object)
+    public function persist(object $object): void
     {
         $class = get_class($object);
         $this->getRepository($class)->manage($object);
@@ -129,41 +125,17 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Removes an object instance.
      *
      * A removed object will be removed from the database as a result of the flush operation.
-     *
-     * @param object $object The object instance to remove.
-     *
-     * @return void
      */
-    public function remove($object)
+    public function remove(object $object): void
     {
         $this->pendingDeletes[get_class($object)][] = $object;
     }
 
     /**
-     * Merges the state of a detached object into the persistence context
-     * of this ObjectManager and returns the managed copy of the object.
-     * The object passed to merge will not become associated/managed with this ObjectManager.
-     *
-     * @param object $object
-     *
-     * @return object
-     */
-    public function merge($object)
-    {
-        $repo = $this->getRepository(get_class($object));
-        $repo->manage($object);
-        return $object;
-    }
-
-    /**
      * Clears the ObjectManager. All objects that are currently managed
      * by this ObjectManager become detached.
-     *
-     * @param string|null $objectName if given, only objects of this type will get detached.
-     *
-     * @return void
      */
-    public function clear($objectName = null)
+    public function clear(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -174,12 +146,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * (including removal of the object), will not be synchronized to the database.
      * Objects which previously referenced the detached object will continue to
      * reference it.
-     *
-     * @param object $object The object to detach.
-     *
-     * @return void
      */
-    public function detach($object)
+    public function detach(object $object): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -187,10 +155,8 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Refreshes the persistent state of an object from the database,
      * overriding any local changes that have not yet been persisted.
-     *
-     * @param object $object The object to refresh.
      */
-    public function refresh($object, LockMode|int|null $lockMode = null): void
+    public function refresh(object $object, LockMode|int|null $lockMode = null): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -199,10 +165,8 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Flushes all changes to objects that have been queued up to now to the database.
      * This effectively synchronizes the in-memory state of managed objects with the
      * database.
-     *
-     * @return void
      */
-    public function flush()
+    public function flush(): void
     {
         foreach ($this->pendingDeletes as $className => $entities) {
             $repo = $this->getRepository($className);
@@ -244,7 +208,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      * @param class-string<Entity> $className
      * @return InMemoryRepository<Entity>
      */
-    public function getRepository($className): InMemoryRepository
+    public function getRepository(string $className): InMemoryRepository
     {
         if (!$this->repos->has($className)) {
             $this->repos->set($className, new InMemoryRepository($className, $this->mappingDriver));
@@ -283,22 +247,16 @@ class InMemoryEntityManager implements EntityManagerInterface
      * Helper method to initialize a lazy loading proxy or persistent collection.
      *
      * This method is a no-op for other objects.
-     *
-     * @param object $obj
-     *
-     * @return void
      */
-    public function initializeObject($obj)
+    public function initializeObject(object $obj): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
-     *
-     * @param object $object
      */
-    public function contains($object): bool
+    public function contains(object $object): bool
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
@@ -344,26 +302,6 @@ class InMemoryEntityManager implements EntityManagerInterface
     public function beginTransaction(): void
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
-    }
-
-    /**
-     * Executes a function in a transaction.
-     *
-     * The function gets passed this EntityManager instance as an (optional) parameter.
-     *
-     * {@link flush} is invoked prior to transaction commit.
-     *
-     * If an exception occurs during execution of the function or flushing or transaction commit,
-     * the transaction is rolled back, the EntityManager closed and the exception re-thrown.
-     *
-     * @param callable $func The function to execute transactionally.
-     * @deprecated
-     *
-     * @return mixed The non-empty value returned from the closure or true instead.
-     */
-    public function transactional($func)
-    {
-        return $this->wrapInTransaction($func);
     }
 
     /**
