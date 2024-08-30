@@ -9,10 +9,13 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @covers Firehed\Mocktrine\CriteriaEvaluator
- */
+#[CoversClass(CriteriaEvaluator::class)]
+#[Small]
 class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
     /** @var InMemoryRepository<GrabBag> */

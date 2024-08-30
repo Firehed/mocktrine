@@ -11,12 +11,15 @@ use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TypeError;
 use UnexpectedValueException;
 
-/**
- * @covers Firehed\Mocktrine\InMemoryRepository
- */
+#[CoversClass(InMemoryRepository::class)]
+#[Small]
 class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
 {
     private MappingDriver $driver;

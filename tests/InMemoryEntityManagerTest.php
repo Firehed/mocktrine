@@ -7,10 +7,13 @@ namespace Firehed\Mocktrine;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\ObjectRepository;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @covers Firehed\Mocktrine\InMemoryEntityManager
- */
+#[CoversClass(InMemoryEntityManager::class)]
+#[Small]
 class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 {
     protected function getEntityManager(): InMemoryEntityManager
