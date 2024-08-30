@@ -25,8 +25,8 @@ jobs:
           - '8.3'
           - '8.4-dev'
         orm:
-          - '2.*'
-          - '3.0.0'
+          - '^2.9'
+          - '^3.0'
 
     steps:
       - name: Check out code
@@ -51,26 +51,20 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.dependencies }}-
             ${{ runner.os }}-php-
 
-      - name: Install highest dependencies
-        if: ${{ matrix.dependencies == 'high' }}
+      - name: Install dependencies
         run: composer update
           --no-ansi
           --no-interaction
           --no-progress
           --no-suggest
           --prefer-dist
-
-      - name: Install lowest dependencies
-        if: ${{ matrix.dependencies == 'low' }}
-        run: composer update
-          --no-ansi
-          --no-interaction
-          --no-progress
-          --no-suggest
-          --prefer-dist
-          --prefer-lowest
+          ${{ matrix.dependencies == 'low' && '--prefer-lowest' || '' }}
 
       - name: Get specific ORM version
+        run: composer update
+          doctrine/orm:'${{ matrix.orm }}'
+          --with-all-dependencies
+          ${{ matrix.dependencies == 'low' && '--prefer-lowest' || '' }}
 
       - name: PHPUnit
         run: vendor/bin/phpunit
