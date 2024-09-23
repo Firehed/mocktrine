@@ -7,7 +7,6 @@ namespace Firehed\Mocktrine;
 use Doctrine\Common\Collections\{
     AbstractLazyCollection,
     ArrayCollection,
-    Collection,
     Criteria,
     Expr,
     Selectable,
@@ -243,10 +242,8 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
     /**
      * Selectable implementation
      * {@inheritdoc}
-     *
-     * return Collection<array-key, Entity>
      */
-    public function matching(Criteria $criteria): Collection&AbstractLazyCollection&Selectable
+    public function matching(Criteria $criteria): AbstractLazyCollection&Selectable
     {
         return new ArrayALC(new ArrayCollection($this->doMatch($criteria)));
     }
