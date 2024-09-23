@@ -424,23 +424,6 @@ class InMemoryEntityManager implements EntityManagerInterface
     }
 
     /**
-    * Gets a hydrator for the given hydration mode.
-    *
-    * This method caches the hydrator instances which is used for all queries that don't
-    * selectively iterate over the result.
-    *
-    * @deprecated
-    *
-    * @param string|int $hydrationMode
-    *
-    * @return \Doctrine\ORM\Internal\Hydration\AbstractHydrator
-    */
-    public function getHydrator($hydrationMode)
-    {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
-    }
-
-    /**
      * Create a new instance for the given hydration mode.
      *
      * @param string|int $hydrationMode
