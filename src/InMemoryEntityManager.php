@@ -331,36 +331,12 @@ class InMemoryEntityManager implements EntityManagerInterface
     }
 
     /**
-     * Creates a Query from a named query.
-     *
-     * @param string $name
-     *
-     * @return Query
-     */
-    public function createNamedQuery($name)
-    {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
-    }
-
-    /**
      * Creates a native SQL query.
      *
      * @param string           $sql
      * @param ResultSetMapping $rsm The ResultSetMapping to use.
      */
     public function createNativeQuery($sql, ResultSetMapping $rsm): NativeQuery
-    {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
-    }
-
-    /**
-     * Creates a NativeQuery from a named native query.
-     *
-     * @param string $name
-     *
-     * @return NativeQuery
-     */
-    public function createNamedNativeQuery($name)
     {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
