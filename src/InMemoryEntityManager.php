@@ -390,31 +390,6 @@ class InMemoryEntityManager implements EntityManagerInterface
     }
 
     /**
-     * Gets a partial reference to the entity identified by the given type and identifier
-     * without actually loading it, if the entity is not yet loaded.
-     *
-     * The returned reference may be a partial object if the entity is not yet loaded/managed.
-     * If it is a partial object it will not initialize the rest of the entity state on access.
-     * Thus you can only ever safely access the identifier of an entity obtained through
-     * this method.
-     *
-     * The use-cases for partial references involve maintaining bidirectional associations
-     * without loading one side of the association or to update an entity without loading it.
-     * Note, however, that in the latter case the original (persistent) entity data will
-     * never be visible to the application (especially not event listeners) as it will
-     * never be loaded in the first place.
-     *
-     * @param string $entityName The name of the entity type.
-     * @param mixed  $identifier The entity identifier.
-     *
-     * @return object|null The (partial) entity reference.
-     */
-    public function getPartialReference($entityName, $identifier)
-    {
-        throw new RuntimeException(__METHOD__ . ' not yet implemented');
-    }
-
-    /**
      * Closes the EntityManager. All entities that are currently managed
      * by this EntityManager become detached. The EntityManager may no longer
      * be used after it is closed.
