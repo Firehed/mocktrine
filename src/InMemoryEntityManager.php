@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use DateTimeInterface;
 use Doctrine\DBAL\{
     Connection,
     LockMode,
@@ -378,15 +379,14 @@ class InMemoryEntityManager implements EntityManagerInterface
     /**
      * Acquire a lock on the given entity.
      *
-     * @param object   $entity
-     * @param int      $lockMode
-     * @param int|null $lockVersion
-     *
      * @throws OptimisticLockException
      * @throws PessimisticLockException
      */
-    public function lock($entity, $lockMode, $lockVersion = null): void
-    {
+    public function lock(
+        object $entity,
+        LockMode|int $lockMode,
+        DateTimeInterface|int|null $lockVersion = null
+    ): void {
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
