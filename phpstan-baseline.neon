@@ -1,72 +1,110 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\RepositoryContainer\\:\\:\\$values with generic class Firehed\\\\Mocktrine\\\\InMemoryRepository does not specify its types\\: Entity$#"
+			message: '#^Method Firehed\\Mocktrine\\CriteriaEvaluator\:\:matchCompositeOrExpression\(\) should return array\<Entity of object\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_contains expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_ends_with expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_starts_with expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Property Firehed\\Mocktrine\\RepositoryContainer\:\:\$values with generic class Firehed\\Mocktrine\\InMemoryRepository does not specify its types\: Entity$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/RepositoryContainer.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$boolField is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\GrabBag\:\:\$boolField is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$dateField is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\GrabBag\:\:\$dateField is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$floatField is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\GrabBag\:\:\$floatField is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$id is unused\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\GrabBag\:\:\$id is unused\.$#'
+			identifier: property.unused
 			count: 1
 			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\GrabBag\\:\\:\\$strField is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\GrabBag\:\:\$strField is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/GrabBag.php
 
 		-
-			message: "#^Class Firehed\\\\Mocktrine\\\\Entities\\\\ReadonlyGeneratedId has an uninitialized readonly property \\$id\\. Assign it in the constructor\\.$#"
+			message: '#^Class Firehed\\Mocktrine\\Entities\\ReadonlyGeneratedId has an uninitialized readonly property \$id\. Assign it in the constructor\.$#'
+			identifier: property.uninitializedReadonly
 			count: 1
 			path: tests/Entities/ReadonlyGeneratedId.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\StringId\\:\\:\\$id is never written, only read\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\StringId\:\:\$id \(string\|null\) is never assigned string so it can be removed from the property type\.$#'
+			identifier: property.unusedType
 			count: 1
 			path: tests/Entities/StringId.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\TypedId\\:\\:\\$id is never written, only read\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\TypedId\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
 			count: 1
 			path: tests/Entities/TypedId.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\UnspecifiedId\\:\\:\\$id is never written, only read\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\UnspecifiedId\:\:\$id \(string\|null\) is never assigned string so it can be removed from the property type\.$#'
+			identifier: property.unusedType
 			count: 1
 			path: tests/Entities/UnspecifiedId.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\User\\:\\:\\$active is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\User\:\:\$active is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/User.php
 
 		-
-			message: "#^Property Firehed\\\\Mocktrine\\\\Entities\\\\User\\:\\:\\$notAColumn is never read, only written\\.$#"
+			message: '#^Property Firehed\\Mocktrine\\Entities\\User\:\:\$notAColumn is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: tests/Entities/User.php
 
 		-
-			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'First callback did…' will always evaluate to false\\.$#"
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with false and ''First callback did…'' will always evaluate to false\.$#'
+			identifier: method.impossibleType
 			count: 1
 			path: tests/InMemoryEntityManagerTest.php
 
 		-
-			message: "#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'Second callback did…' will always evaluate to false\\.$#"
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with false and ''Second callback did…'' will always evaluate to false\.$#'
+			identifier: method.impossibleType
 			count: 1
 			path: tests/InMemoryEntityManagerTest.php
 

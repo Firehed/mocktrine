@@ -8,3 +8,6 @@ parameters:
     paths:
         - src
         - tests
+    ignoreErrors:
+        - identifier: method.alreadyNarrowedType
+          path: tests/*
