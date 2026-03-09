@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\{
     Collection,
     Criteria,
     Expr,
+    Order,
     Selectable,
 };
 use Doctrine\Persistence\Mapping\{
@@ -88,7 +89,6 @@ class InMemoryRepository implements ObjectRepository, Selectable
 
         assert(count($ids) === 1);
         $idField = $ids[0];
-        assert(is_string($idField));
         $this->idField = $idField;
         $idType = $metadata->getTypeOfField($idField);
         assert($idType !== null);
@@ -156,10 +156,10 @@ class InMemoryRepository implements ObjectRepository, Selectable
      * an UnexpectedValueException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param array<array-key, mixed>       $criteria
-     * @param array<array-key, string>|null $orderBy
-     * @param int|null      $limit
-     * @param int|null      $offset
+     * @param array<array-key, mixed> $criteria
+     * @param array<string, string|Order>|null $orderBy
+     * @param ?int $limit
+     * @param ?int $offset
      *
      * @return Entity[] The objects.
      *
@@ -182,9 +182,11 @@ class InMemoryRepository implements ObjectRepository, Selectable
             // Criteria::orderBy silently converts any invalid inputs to 'DESC'
             // This pre-validates them
             foreach ($orderBy as $field => $direction) {
-                $direction = strtoupper(trim($direction));
-                if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
-                    throw ORMException::invalidOrientation($this->getClassName(), $field);
+                if (is_string($direction)) {
+                    $direction = strtoupper(trim($direction));
+                    if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
+                        throw ORMException::invalidOrientation($this->getClassName(), $field);
+                    }
                 }
             }
             $crit->orderBy($orderBy);
