@@ -23,7 +23,7 @@ class StringId
     #[Mapping\Id]
     #[Mapping\Column]
     #[Mapping\GeneratedValue]
-    private $id;
+    private ?string $id = null;
 
     public function getId(): ?string
     {
