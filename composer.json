@@ -38,6 +38,7 @@
     "scripts": {
       "coverage": "phpunit --coverage-html .generated/codecoverage; open .generated/codecoverage/index.html",
       "phpstan": "phpstan analyse --memory-limit=256M",
+      "phpstan-baseline": "phpstan analyse --memory-limit=256M --generate-baseline",
       "lint": "phpcs",
       "analyze": ["@phpstan"],
       "test": [
