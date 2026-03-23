@@ -59,9 +59,7 @@ class CriteriaEvaluator
         $className = $metadata->getName();
         $rc = new ReflectionClass($className);
         foreach ($metadata->getFieldNames() as $fieldName) {
-            $rp = $rc->getProperty($fieldName);
-            $rp->setAccessible(true);
-            $this->reflectionProperties[$fieldName] = $rp;
+            $this->reflectionProperties[$fieldName] = $rc->getProperty($fieldName);
         }
     }
 
