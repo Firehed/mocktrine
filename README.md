@@ -12,7 +12,7 @@ A Doctrine mocking library for testing
 
 In your unit tests that need an Entity Manager, use a `new \Firehed\Mocktrine\InMemoryEntityManager`. Done!
 
-Any object with Doctrine's entity annotations (`@Entity`, `@Id`, `@Column`, etc) should work without modification.
+Any object with Doctrine's entity attributes (`#[Entity]`, `#[Id]`, `#[Column]`, etc) should work without modification.
 
 This library aims to provide as much type information as possible, so that static analysis tools (such as PHPStan) work well without additional plugins.
 
@@ -30,16 +30,13 @@ The `InMemoryEntityManager` accepts the driver as an optional parameter.
 
 You can also grab the value directly from your Doctrine config:
 ```php
-$config = Setup::createAnnotationMetadataDriverConfiguration(...)
+$config = ORMSetup::createAttributeMetadataConfiguration(...);
 $driver = $config->getMetadataDriverImpl();
-$em = new Mocktrine\InMemoryEntityManager($driver)
+$em = new Mocktrine\InMemoryEntityManager($driver);
 ```
 
-If a driver is not provided, it will default to either `SimpleAnnotationReader` or `AnnotationReader` that's used via `Setup::createAnnotationMetadataConfiguration`.
-The former will be preferred, but the class has been removed in `doctrine/annotations:2.0`; if your local dependencies allow that version then the latter will be used.
-
+If a driver is not provided, it will default to an `AttributeDriver`.
 It is RECOMMENDED to always explicitly provide a driver, as that best matches Doctrine's own setup behavior.
-Future versions of this library may make this required.
 
 ## Supported features
 
@@ -66,22 +63,17 @@ The following methods are **not** supported at this time:
 - getConnection
 - getExpressionBuilder
 - beginTransaction
-- transactional
+- wrapInTransaction
 - commit
 - rollback
 - createQuery
-- createNamedQuery
 - createNativeQuery
-- createNamedNativeQuery
 - getReference
-- getPartialReference
 - close
-- copy
 - lock
 - getEventManager
 - getConfiguration
 - getUnitOfWork
-- getHydrator
 - newHydrator
 - getProxyFactory
 - getFilters
