@@ -220,7 +220,6 @@ class InMemoryEntityManager implements EntityManagerInterface
             $idField = $repo->getIdField();
             $idType = $repo->getIdType();
             $rp = new \ReflectionProperty($className, $idField);
-            $rp->setAccessible(true);
             foreach ($entities as $entity) {
                 if (!$rp->isInitialized($entity) || $rp->getValue($entity) === null) {
                     $id = random_int(0, PHP_INT_MAX);
