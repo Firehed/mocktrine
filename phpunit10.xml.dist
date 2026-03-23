@@ -8,11 +8,11 @@
          requireCoverageMetadata="true"
          displayDetailsOnAllIssues="true"
          beStrictAboutCoverageMetadata="false">
-  <coverage>
+  <source>
     <include>
       <directory suffix=".php">src</directory>
     </include>
-  </coverage>
+  </source>
   <testsuites>
     <testsuite name="default">
       <directory suffix="Test.php">tests</directory>
