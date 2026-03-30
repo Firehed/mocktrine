@@ -676,6 +676,12 @@ class InMemoryEntityManager implements EntityManagerInterface
         return self::$defaultMappingDriver;
     }
 
+    /**
+     * Reduces noise during debugging. The keys and data are not considered
+     * part of the API.
+     *
+     * @internal
+     */
     public function __debugInfo(): array
     {
         return [

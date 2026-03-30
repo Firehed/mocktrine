@@ -297,6 +297,12 @@ class InMemoryRepository implements ObjectRepository, Selectable
         return $this->isIdGenerated;
     }
 
+    /*
+     * Reduces noise during debugging. The keys and data are not considered
+     * part of the API.
+     *
+     * @internal
+     */
     public function __debugInfo(): array
     {
         return [
