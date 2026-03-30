@@ -412,4 +412,13 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
             $this->assertArrayHasKey($i, $results);
         }
     }
+
+    public function testDebugInfo(): void
+    {
+        $repo = $this->getFixture();
+
+        $debugInfo = $repo->__debugInfo();
+
+        $this->assertIsArray($debugInfo);
+    }
 }
