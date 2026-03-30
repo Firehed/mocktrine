@@ -206,4 +206,14 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
         $em->flush();
         $this->assertIsString($rgid->id);
     }
+
+    public function testDebugInfo(): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist(new Entities\User('test@example.com', 'Test'));
+
+        $debugInfo = $em->__debugInfo();
+
+        $this->assertIsArray($debugInfo);
+    }
 }
