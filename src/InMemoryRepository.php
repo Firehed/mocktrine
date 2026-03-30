@@ -296,4 +296,18 @@ class InMemoryRepository implements ObjectRepository, Selectable
     {
         return $this->isIdGenerated;
     }
+
+    public function __debugInfo(): array
+    {
+        return [
+            'entityClass' => $this->className,
+            'entityIdField' => $this->idField,
+            'entityIdType' => $this->idType,
+            'entityGeneratesOwnId' => $this->isIdGenerated,
+            'mappingDriver' => get_class($this->mappingDriver),
+            // This may get slimmed down
+            'entities' => $this->managedEntities,
+            // metadata omitted
+        ];
+    }
 }
