@@ -675,4 +675,15 @@ class InMemoryEntityManager implements EntityManagerInterface
         }
         return self::$defaultMappingDriver;
     }
+
+    public function __debugInfo(): array
+    {
+        return [
+            'repos' => $this->repos,
+            'mappingDriver' => get_class($this->mappingDriver),
+            'needIds' => $this->needIds,
+            'pendingDeletes' => $this->pendingDeletes,
+            'onFlushCallbacks' => $this->onFlushCallbacks,
+        ];
+    }
 }
