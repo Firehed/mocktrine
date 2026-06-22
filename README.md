@@ -18,25 +18,22 @@ This library aims to provide as much type information as possible, so that stati
 
 ### Mapping support
 
-As of version 0.5, any mapping driver supported by Doctrine can be used with this library.
-The `InMemoryEntityManager` accepts the driver as an optional parameter.
+If a MappingDriver is not provided to the `InMemoryEntityManager`, it will default to `AttributeDriver`.
+It is STRONGLY RECOMMENDED to always pass the same driver you use in your real application:
 
-```diff
-- $em = new Mocktrine\InMemoryEntityManager();
-+ $em = new Mocktrine\InMemoryEntityManager(
-+     \Doctrine\ORM\Mapping\Driver\AttributeDriver(['src/Model']),
-+ );
+
+```php
+$em = new \Firehed\Mocktrine\InMemoryEntityManager(
+    new \Doctrine\ORM\Mapping\Driver\AttributeDriver(['src/Model']),
+ );
 ```
 
 You can also grab the value directly from your Doctrine config:
 ```php
 $config = ORMSetup::createAttributeMetadataConfiguration(...);
 $driver = $config->getMetadataDriverImpl();
-$em = new Mocktrine\InMemoryEntityManager($driver);
+$em = new Firehed\Mocktrine\InMemoryEntityManager($driver);
 ```
-
-If a driver is not provided, it will default to an `AttributeDriver`.
-It is RECOMMENDED to always explicitly provide a driver, as that best matches Doctrine's own setup behavior.
 
 ## Supported features
 
