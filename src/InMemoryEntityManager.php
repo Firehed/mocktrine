@@ -226,8 +226,6 @@ class InMemoryEntityManager implements EntityManagerInterface
      *
      * @template T of object
      * @param class-string<T> $className
-     *
-     * return ClassMetadata<T>
      */
     public function getClassMetadata($className): \Doctrine\ORM\Mapping\ClassMetadata
     {
@@ -236,8 +234,6 @@ class InMemoryEntityManager implements EntityManagerInterface
 
     /**
      * Gets the metadata factory used to gather the metadata of classes.
-     *
-     * return ClassMetadataFactory<ClassMetadata<object>>
      */
     public function getMetadataFactory(): never
     {
