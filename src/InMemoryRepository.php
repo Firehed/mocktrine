@@ -297,4 +297,24 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
     {
         return $this->isIdGenerated;
     }
+
+    /*
+     * Reduces noise during debugging. The keys and data are not considered
+     * part of the API.
+     *
+     * @internal
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'entityClass' => $this->className,
+            'entityIdField' => $this->idField,
+            'entityIdType' => $this->idType,
+            'entityGeneratesOwnId' => $this->isIdGenerated,
+            'mappingDriver' => get_class($this->mappingDriver),
+            // This may get slimmed down
+            'entities' => $this->managedEntities,
+            // metadata omitted
+        ];
+    }
 }
