@@ -310,21 +310,7 @@ class InMemoryEntityManager implements EntityManagerInterface
      */
     public function wrapInTransaction(callable $func): mixed
     {
-        $this->beginTransaction();
-
-        try {
-            $return = $func($this);
-
-            $this->flush();
-            $this->commit();
-
-            return $return;
-        } catch (Throwable $e) {
-            $this->close();
-            $this->rollback();
-
-            throw $e;
-        }
+        throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
     /**
