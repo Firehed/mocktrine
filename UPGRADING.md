@@ -28,9 +28,9 @@ Removed `EntityManagerInterface` methods:
 
 Signature Changes
 
-- `clear()`: No loger accepts `$objectName`
+- `clear()`: No longer accepts `$objectName`
 - `refresh()`: New optional `$lockMode` parameter (currently not used by library)
-- `matching()`: Returns `AbstractLazyCollection&Selectable` instead of `Selection`
+- `matching()`: Returns `AbstractLazyCollection&Selectable` instead of `Collection`
 
 ## 2.x
 
