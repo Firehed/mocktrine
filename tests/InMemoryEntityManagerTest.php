@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
@@ -19,8 +18,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 {
     protected function getEntityManager(): InMemoryEntityManager
     {
-        $reader = new AnnotationReader();
-        return new InMemoryEntityManager(new AnnotationDriver($reader));
+        return new InMemoryEntityManager(new AttributeDriver(['.']));
     }
 
     public function testFindWithNoEntity(): void
@@ -33,7 +31,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
     {
         $user = new Entities\User('1@example.com', 'last', 10);
         $em = $this->getEntityManager();
-        $em->merge($user); // This starts managing the entity
+        $em->persist($user); // This starts managing the entity
 
         $this->assertSame($user, $em->find(Entities\User::class, 10));
     }
@@ -97,7 +95,7 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
     {
         $node = new Entities\Node();
         $em = $this->getEntityManager();
-        $em->merge($node);
+        $em->persist($node);
         $this->assertSame(
             $node,
             $em->find(Entities\Node::class, $node->getNodeId()),

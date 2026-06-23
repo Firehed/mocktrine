@@ -5,24 +5,27 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Collections\{
+    AbstractLazyCollection,
     ArrayCollection,
-    Collection,
     Criteria,
     Expr,
     Order,
     Selectable,
 };
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\Mapping\{
     ClassMetadata as ClassMetadataInterface,
     RuntimeReflectionService,
 };
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Mapping\{
     ClassMetadata,
     MappingException,
 };
+use Doctrine\ORM\Persisters\Exception\InvalidOrientation;
 use DomainException;
 use ReflectionClass;
 use TypeError;
@@ -43,8 +46,10 @@ use function trim;
  *
  * @implements ObjectRepository<Entity>
  * @implements Selectable<array-key, Entity>
+ *
+ * @extends EntityRepository<Entity>
  */
-class InMemoryRepository implements ObjectRepository, Selectable
+class InMemoryRepository extends EntityRepository implements ObjectRepository, Selectable
 {
     /**
      * @var class-string<Entity>
@@ -130,11 +135,9 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /**
      * Finds an object by its primary key / identifier.
      *
-     * @param mixed $id The identifier.
-     *
      * @return ?Entity The object.
      */
-    public function find($id)
+    public function find(mixed $id, LockMode|int|null $lockMode = null, ?int $lockVersion = null): ?object
     {
         return $this->findOneBy([$this->idField => $id]);
     }
@@ -144,7 +147,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return Entity[] The objects.
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->findBy([]);
     }
@@ -165,7 +168,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @throws UnexpectedValueException
      */
-    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
         $expr = Criteria::expr();
         $crit = Criteria::create();
@@ -185,7 +188,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
                 if (is_string($direction)) {
                     $direction = strtoupper(trim($direction));
                     if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
-                        throw ORMException::invalidOrientation($this->getClassName(), $field);
+                        throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field);
                     }
                 }
             }
@@ -209,7 +212,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @param array<string, mixed> $criteria
      */
-    public function count(array $criteria): int
+    public function count(array $criteria = []): int
     {
         return count($this->findBy($criteria));
     }
@@ -221,7 +224,7 @@ class InMemoryRepository implements ObjectRepository, Selectable
      *
      * @return ?Entity The object.
      */
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria, ?array $orderBy = null): ?object
     {
         $results = $this->findBy($criteria);
         if (count($results) > 0) {
@@ -243,12 +246,10 @@ class InMemoryRepository implements ObjectRepository, Selectable
     /**
      * Selectable implementation
      * {@inheritdoc}
-     *
-     * @return Collection<array-key, Entity>
      */
-    public function matching(Criteria $criteria): Collection
+    public function matching(Criteria $criteria): AbstractLazyCollection&Selectable
     {
-        return new ArrayCollection($this->doMatch($criteria));
+        return new ArrayALC(new ArrayCollection($this->doMatch($criteria)));
     }
 
     /**
