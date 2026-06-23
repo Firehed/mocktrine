@@ -226,7 +226,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      */
     public function findOneBy(array $criteria, ?array $orderBy = null): ?object
     {
-        $results = $this->findBy($criteria);
+        $results = $this->findBy($criteria, $orderBy, limit: 1);
         if (count($results) > 0) {
             return current($results);
         }
