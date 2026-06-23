@@ -210,6 +210,19 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('last', $entity->getLastName());
     }
 
+    public function testFindOneByRespectsOrderBy(): void
+    {
+        $repo = $this->getFixture();
+
+        $entityAsc = $repo->findOneBy(['lastName' => 'last'], ['email' => 'ASC']);
+        self::assertNotNull($entityAsc, 'Should find a matching entity');
+        self::assertSame('1@example.com', $entityAsc->getEmail(), 'ASC should return first by email');
+
+        $entityDesc = $repo->findOneBy(['lastName' => 'last'], ['email' => 'DESC']);
+        self::assertNotNull($entityDesc, 'Should find a matching entity');
+        self::assertSame('2@example.com', $entityDesc->getEmail(), 'DESC should return last by email');
+    }
+
     public function testFindWhereIdExists(): void
     {
         $repo = $this->getFixture();
