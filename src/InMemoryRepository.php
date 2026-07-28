@@ -36,7 +36,7 @@ use function count;
 use function current;
 use function is_array;
 use function preg_match;
-use function spl_object_hash;
+use function spl_object_id;
 use function sprintf;
 use function strtoupper;
 use function trim;
@@ -114,7 +114,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
                 get_class($entity)
             ));
         }
-        $this->managedEntities[spl_object_hash($entity)] = $entity;
+        $this->managedEntities[spl_object_id($entity)] = $entity;
     }
 
     /**
@@ -127,7 +127,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      */
     public function remove(object $entity): void
     {
-        unset($this->managedEntities[spl_object_hash($entity)]);
+        unset($this->managedEntities[spl_object_id($entity)]);
     }
 
     // ObjectRepository implementation
