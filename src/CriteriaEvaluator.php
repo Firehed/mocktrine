@@ -18,8 +18,6 @@ use ReflectionClass;
 use UnexpectedValueException;
 
 use function array_filter;
-use function array_map;
-use function array_reduce;
 use function array_slice;
 use function array_values;
 use function assert;
@@ -198,12 +196,16 @@ class CriteriaEvaluator
      */
     private function matchCompositeOrExpression(array $entities, CompositeExpression $expr): array
     {
-        $expressions = $expr->getExpressionList();
         // For each expression in the composite, apply the filtering and gather
-        // the results.
-        $filteredEntitySets = array_map(fn ($expr) => $this->match($entities, $expr), $expressions);
-
-        return array_reduce($filteredEntitySets, 'array_merge', []);
+        // the results. Assigning by key de-duplicates entities that are matched
+        // by more than one of the expressions.
+        $matched = [];
+        foreach ($expr->getExpressionList() as $expression) {
+            foreach ($this->match($entities, $expression) as $key => $entity) {
+                $matched[$key] = $entity;
+            }
+        }
+        return $matched;
     }
 
     /**

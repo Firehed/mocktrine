@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Firehed\\Mocktrine\\CriteriaEvaluator\:\:matchCompositeOrExpression\(\) should return array\<Entity of object\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: src/CriteriaEvaluator.php
-
-		-
 			message: '#^Parameter \#1 \$haystack of function str_contains expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
