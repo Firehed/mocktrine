@@ -250,6 +250,11 @@ class InMemoryEntityManager implements EntityManagerInterface
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
+    public function isUninitializedObject(mixed $value): bool
+    {
+        return false;
+    }
+
     /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
      */
