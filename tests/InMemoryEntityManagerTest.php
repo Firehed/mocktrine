@@ -214,4 +214,23 @@ class InMemoryEntityManagerTest extends \PHPUnit\Framework\TestCase
 
         $this->assertIsArray($debugInfo);
     }
+
+    public function testIsUninitializedObjectReturnsFalse(): void
+    {
+        $em = $this->getEntityManager();
+        $user = new Entities\User('test@example.com', 'Test');
+
+        self::assertFalse(
+            $em->isUninitializedObject($user),
+            'In-memory EM does not use proxies, so objects are never uninitialized',
+        );
+
+        $em->persist($user);
+        $em->flush();
+
+        self::assertFalse(
+            $em->isUninitializedObject($user),
+            'Persisted entities are also never uninitialized',
+        );
+    }
 }
