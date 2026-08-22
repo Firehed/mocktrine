@@ -251,6 +251,15 @@ class InMemoryEntityManager implements EntityManagerInterface
     }
 
     /**
+     * (Only in doctrine/persistence v4)
+     */
+    public function isUninitializedObject(mixed $value): bool
+    {
+        // Objects are never lazy loading proxies with Mocktrine
+        return false;
+    }
+
+    /**
      * Checks if the object is part of the current UnitOfWork and therefore managed.
      */
     public function contains(object $object): bool
