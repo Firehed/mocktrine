@@ -250,8 +250,12 @@ class InMemoryEntityManager implements EntityManagerInterface
         throw new RuntimeException(__METHOD__ . ' not yet implemented');
     }
 
+    /**
+     * (Only in doctrine/persistence v4)
+     */
     public function isUninitializedObject(mixed $value): bool
     {
+        // Objects are never lazy loading proxies with Mocktrine
         return false;
     }
 
