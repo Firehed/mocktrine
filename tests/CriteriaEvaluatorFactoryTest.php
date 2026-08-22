@@ -7,7 +7,6 @@ namespace Firehed\Mocktrine;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(CriteriaEvaluatorFactory::class)]
@@ -16,7 +15,7 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetInstanceReturnsSingleton(): void
     {
-        $md = $this->createMock(ClassMetadata::class);
+        $md = self::createStub(ClassMetadata::class);
         $md->method('getName')->willReturn(Entities\GrabBag::class);
         $md->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
 
@@ -32,11 +31,11 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 
     public function testGetInstanceReturnsDifferentInstancesForDifferentClasses(): void
     {
-        $md1 = $this->createMock(ClassMetadata::class);
+        $md1 = self::createStub(ClassMetadata::class);
         $md1->method('getName')->willReturn(Entities\GrabBag::class);
         $md1->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
 
-        $md2 = $this->createMock(ClassMetadata::class);
+        $md2 = self::createStub(ClassMetadata::class);
         $md2->method('getName')->willReturn(Entities\User::class);
         $md2->method('getFieldNames')->willReturn(['id', 'email', 'active', 'lastName']);
 
