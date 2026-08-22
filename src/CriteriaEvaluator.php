@@ -6,6 +6,7 @@ namespace Firehed\Mocktrine;
 
 use BadMethodCallException;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Common\Collections\Expr\{
     Comparison,
     CompositeExpression,
@@ -70,7 +71,7 @@ class CriteriaEvaluator
         $expr = $criteria->getWhereExpression();
         $entities = $this->match($entities, $expr);
 
-        if ($orderings = $criteria->getOrderings()) {
+        if ($orderings = $criteria->orderings()) {
             $entities = $this->sortResults($entities, $orderings);
         }
 
@@ -242,8 +243,7 @@ class CriteriaEvaluator
 
     /**
      * @param Entity[] $results
-     * @param array<string, string> $orderBy (actually
-     * Criteria::ASC|Criteria:::DESC but the PHPStan annotations won't work)
+     * @param array<string, Order> $orderBy
      * @return Entity[]
      */
     private function sortResults(array $results, array $orderBy): array
@@ -276,22 +276,10 @@ class CriteriaEvaluator
                     // property in the sorting criteria
                     continue;
                 }
-                if ($direction === Criteria::ASC) {
-                    if ($v1 > $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } elseif ($direction === Criteria::DESC) {
-                    if ($v1 < $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
+                if ($direction === Order::Ascending) {
+                    return $v1 > $v2 ? 1 : -1;
                 } else {
-                    // @codeCoverageIgnoreStart
-                    throw new DomainException(sprintf('Unhandled direction %s', $direction));
-                    // @codeCoverageIgnoreEnd
+                    return $v1 < $v2 ? 1 : -1;
                 }
             }
             // If all loops have exited without returning a comparision
