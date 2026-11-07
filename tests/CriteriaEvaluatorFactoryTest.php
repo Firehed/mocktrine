@@ -17,7 +17,14 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
     {
         $md = self::createStub(ClassMetadata::class);
         $md->method('getName')->willReturn(Entities\GrabBag::class);
-        $md->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
+        $md->method('getFieldNames')->willReturn([
+            'boolField',
+            'floatField',
+            'strField',
+            'dateField',
+            'nullableIntField',
+            'nullableDateField',
+        ]);
 
         $ce1 = CriteriaEvaluatorFactory::getInstance($md);
         $ce2 = CriteriaEvaluatorFactory::getInstance($md);
@@ -33,7 +40,14 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
     {
         $md1 = self::createStub(ClassMetadata::class);
         $md1->method('getName')->willReturn(Entities\GrabBag::class);
-        $md1->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
+        $md1->method('getFieldNames')->willReturn([
+            'boolField',
+            'floatField',
+            'strField',
+            'dateField',
+            'nullableIntField',
+            'nullableDateField',
+        ]);
 
         $md2 = self::createStub(ClassMetadata::class);
         $md2->method('getName')->willReturn(Entities\User::class);
