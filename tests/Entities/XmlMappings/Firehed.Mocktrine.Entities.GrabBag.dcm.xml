@@ -10,6 +10,8 @@
         <field name="floatField" column="float_field" type="float" />
         <field name="strField" column="str_field" type="string" />
         <field name="dateField" column="date_field" type="date" />
+        <field name="nullableIntField" column="nullable_int_field" type="integer" nullable="true" />
+        <field name="nullableDateField" column="nullable_date_field" type="datetime_immutable" nullable="true" />
 
     </entity>
 
