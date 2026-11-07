@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine\Entities;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping;
 
@@ -47,15 +48,31 @@ class GrabBag
     #[Mapping\Column]
     private DateTimeInterface $dateField;
 
+    /**
+     * @Mapping\Column(name="nullable_int_field", type="integer", nullable=true)
+     */
+    #[Mapping\Column(nullable: true)]
+    private ?int $nullableIntField; // @phpstan-ignore property.onlyWritten (read via reflection)
+
+    /**
+     * @Mapping\Column(name="nullable_date_field", type="datetime_immutable", nullable=true)
+     */
+    #[Mapping\Column(nullable: true)]
+    private ?DateTimeImmutable $nullableDateField; // @phpstan-ignore property.onlyWritten (read via reflection)
+
     public function __construct(
         bool $boolField,
         float $floatField,
         string $strField,
-        DateTimeInterface $dateField
+        DateTimeInterface $dateField,
+        ?int $nullableIntField = null,
+        ?DateTimeImmutable $nullableDateField = null,
     ) {
         $this->boolField = $boolField;
         $this->floatField = $floatField;
         $this->strField = $strField;
         $this->dateField = $dateField;
+        $this->nullableIntField = $nullableIntField;
+        $this->nullableDateField = $nullableDateField;
     }
 }

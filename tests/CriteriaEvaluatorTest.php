@@ -6,10 +6,12 @@ namespace Firehed\Mocktrine;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,8 +31,8 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $em = new InMemoryEntityManager(new AttributeDriver(['.']));
         $repo = $em->getRepository(GrabBag::class);
         $this->entities = [
-            new GrabBag(true, 30, 'hello', new DateTimeImmutable()),
-            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable()),
+            new GrabBag(true, 30, 'hello', new DateTimeImmutable(), 0, new DateTimeImmutable('2020-01-01')),
+            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable(), 10, new DateTimeImmutable('2030-01-01')),
             new GrabBag(true, 29.5, 'good', new DateTimeImmutable()),
             new GrabBag(true, 800, 'bye', new DateTimeImmutable()),
             new GrabBag(true, 0, 'goodbye', new DateTimeImmutable()),
@@ -161,6 +163,62 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
             ->where($expr->gte('floatField', 30));
 
         $this->assertCriteriaReturnsIndexes($crit, 0, 1, 3, 7, 8, 9);
+    }
+
+    /**
+     * @return array<string, array{Comparison, list<int>}>
+     */
+    public static function rangeComparisonsOnNullableFields(): array
+    {
+        $expr = Criteria::expr();
+        $cutoff = new DateTimeImmutable('2025-01-01');
+        return [
+            'int lt' => [$expr->lt('nullableIntField', 5), [0]],
+            'int lte' => [$expr->lte('nullableIntField', 0), [0]],
+            'int gt' => [$expr->gt('nullableIntField', 0), [1]],
+            'int gte' => [$expr->gte('nullableIntField', 0), [0, 1]],
+            'date lt' => [$expr->lt('nullableDateField', $cutoff), [0]],
+            'date lte' => [$expr->lte('nullableDateField', $cutoff), [0]],
+            'date gt' => [$expr->gt('nullableDateField', $cutoff), [1]],
+            'date gte' => [$expr->gte('nullableDateField', $cutoff), [1]],
+        ];
+    }
+
+    /**
+     * @param list<int> $indexes
+     */
+    #[DataProvider('rangeComparisonsOnNullableFields')]
+    public function testRangeComparisonNeverMatchesNullField(Comparison $comparison, array $indexes): void
+    {
+        $crit = Criteria::create()->where($comparison);
+
+        $this->assertCriteriaReturnsIndexes($crit, ...$indexes);
+    }
+
+    /**
+     * @return array<string, array{Comparison}>
+     */
+    public static function rangeComparisonsAgainstNull(): array
+    {
+        $expr = Criteria::expr();
+        return [
+            'lt' => [$expr->lt('nullableIntField', null)],
+            'lte' => [$expr->lte('nullableIntField', null)],
+            'gt' => [$expr->gt('nullableIntField', null)],
+            'gte' => [$expr->gte('nullableIntField', null)],
+        ];
+    }
+
+    #[DataProvider('rangeComparisonsAgainstNull')]
+    public function testRangeComparisonAgainstNullNeverMatches(Comparison $comparison): void
+    {
+        $crit = Criteria::create()->where($comparison);
+
+        self::assertSame(
+            [],
+            $this->repo->matching($crit)->toArray(),
+            'Comparing with NULL using a range operator never matches in SQL',
+        );
     }
 
     public function testIsNull(): void

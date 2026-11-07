@@ -140,13 +140,20 @@ class CriteriaEvaluator
                     return $entVal !== $value;
                 };
             case Comparison::GT:
-                return fn ($entVal) => $entVal > $value;
             case Comparison::GTE:
-                return fn ($entVal) => $entVal >= $value;
             case Comparison::LT:
-                return fn ($entVal) => $entVal < $value;
             case Comparison::LTE:
-                return fn ($entVal) => $entVal <= $value;
+                // As in SQL, range comparisons involving null never match.
+                if ($value === null) {
+                    return fn () => false;
+                }
+                $operator = $expr->getOperator();
+                return fn ($entVal) => $entVal !== null && match ($operator) {
+                    Comparison::GT => $entVal > $value,
+                    Comparison::GTE => $entVal >= $value,
+                    Comparison::LT => $entVal < $value,
+                    Comparison::LTE => $entVal <= $value,
+                };
             case Comparison::IN:
                 assert(is_array($value));
                 return fn ($entVal) => in_array($entVal, $value, true);
