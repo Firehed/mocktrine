@@ -139,14 +139,15 @@ class CriteriaEvaluator
                     }
                     return $entVal !== $value;
                 };
+            // As in SQL, range comparisons involving null never match.
             case Comparison::GT:
-                return fn ($entVal) => $entVal > $value;
+                return fn ($entVal) => $entVal !== null && $value !== null && $entVal > $value;
             case Comparison::GTE:
-                return fn ($entVal) => $entVal >= $value;
+                return fn ($entVal) => $entVal !== null && $value !== null && $entVal >= $value;
             case Comparison::LT:
-                return fn ($entVal) => $entVal < $value;
+                return fn ($entVal) => $entVal !== null && $value !== null && $entVal < $value;
             case Comparison::LTE:
-                return fn ($entVal) => $entVal <= $value;
+                return fn ($entVal) => $entVal !== null && $value !== null && $entVal <= $value;
             case Comparison::IN:
                 assert(is_array($value));
                 return fn ($entVal) => in_array($entVal, $value, true);
