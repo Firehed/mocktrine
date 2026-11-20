@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\{
     AbstractLazyCollection,
     Criteria,
     Collection,
+    ReadableCollection,
     Selectable,
 };
 
@@ -45,7 +46,7 @@ class ArrayALC extends AbstractLazyCollection implements Selectable
         // no-op, constructor does this
     }
 
-    public function matching(Criteria $criteria)
+    public function matching(Criteria $criteria): ReadableCollection
     {
         throw new BadMethodCallException('Nested matching not supported');
     }
