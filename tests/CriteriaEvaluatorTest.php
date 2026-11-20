@@ -210,6 +210,24 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 4, 6);
     }
 
+    public function testInIntForFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->in('floatField', [30, 800]));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 3, 8, 9);
+    }
+
+    public function testNotInIntForFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->notIn('floatField', [30, 800]));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 2, 4, 5, 6, 7);
+    }
+
     public function testNotIn(): void
     {
         $expr = Criteria::expr();
