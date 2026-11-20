@@ -1,6 +1,24 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Parameter \#1 \$haystack of function str_contains expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_ends_with expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_starts_with expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/CriteriaEvaluator.php
+
+		-
 			message: '#^Property Firehed\\Mocktrine\\RepositoryContainer\:\:\$values with generic class Firehed\\Mocktrine\\InMemoryRepository does not specify its types\: Entity$#'
 			identifier: missingType.generics
 			count: 1
