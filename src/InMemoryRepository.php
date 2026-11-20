@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\{
     ArrayCollection,
     Criteria,
     Expr,
-    Order,
     Selectable,
 };
 use Doctrine\DBAL\LockMode;
@@ -160,7 +159,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * not supported.
      *
      * @param array<array-key, mixed> $criteria
-     * @param array<string, string|Order>|null $orderBy
+     * @param array<string, string|\SortDirection>|null $orderBy
      * @param ?int $limit
      * @param ?int $offset
      *
