@@ -48,7 +48,7 @@ class GrabBag
     private DateTimeInterface $dateField;
 
     #[Mapping\Column(nullable: true)]
-    private ?string $nullableStrField;
+    private ?string $nullableStrField; // @phpstan-ignore property.onlyWritten (read through reflection)
 
     public function __construct(
         bool $boolField,
