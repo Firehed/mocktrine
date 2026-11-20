@@ -79,6 +79,12 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    private function assertCriteriaReturnsIndexesInOrder(Criteria $criteria, int ...$indexes): void
+    {
+        $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
+        $this->assertSame($expected, $this->repo->matching($criteria)->toArray());
+    }
+
     public function testEqBool(): void
     {
         $expr = Criteria::expr();
@@ -334,19 +340,23 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $crit = Criteria::create()
             ->orderBy([
                 'floatField' => Criteria::DESC,
+                'strField' => Criteria::ASC,
             ]);
 
-        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 3, 7, 1, 8, 9, 0, 2, 4, 6, 5);
     }
 
     public function testOnlyLimits(): void
     {
         $crit = Criteria::create()
-            ->orderBy(['floatField' => Criteria::ASC])
+            ->orderBy([
+                'floatField' => Criteria::ASC,
+                'strField' => Criteria::ASC,
+            ])
             ->setFirstResult(2)
             ->setMaxResults(5);
 
-        $this->assertCriteriaReturnsIndexes($crit, 4, 2, 0, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 4, 2, 8, 9, 0);
     }
 
     public function testZeroMaxResults(): void
