@@ -12,9 +12,11 @@ use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SortDirection;
 use TypeError;
 use UnexpectedValueException;
 
@@ -102,22 +104,30 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $results[1]->getEmail());
     }
 
-    public function testFindByWithSorting(): void
+    /**
+     * @return array<string, array{array<string, string|SortDirection>}>
+     */
+    public static function sortDirections(): array
     {
-        $repo = $this->getFixture();
-        $results = $repo->findBy([], ['lastName' => 'ASC', 'email' => 'DESC']);
-        $this->assertResultSizeAndIndexValidity(5, $results);
-        $this->assertSame('2@example.com', $results[0]->getEmail());
-        $this->assertSame('1@example.com', $results[1]->getEmail());
-        $this->assertSame('5@example.com', $results[2]->getEmail());
-        $this->assertSame('4@example.com', $results[3]->getEmail());
-        $this->assertSame('3@example.com', $results[4]->getEmail());
+        $cases = [
+            'strings' => [['lastName' => 'ASC', 'email' => 'DESC']],
+            'case-insensitive strings' => [['lastName' => 'asc', 'email' => 'dEsC']],
+        ];
+        // ORM 3.7+ accepts SortDirection and provides it through a polyfill
+        if (enum_exists(SortDirection::class)) {
+            $cases['SortDirection'] = [['lastName' => SortDirection::Ascending, 'email' => SortDirection::Descending]];
+        }
+        return $cases;
     }
 
-    public function testFindBySortingIsCaseInsensitive(): void
+    /**
+     * @param array<string, string|SortDirection> $orderBy
+     */
+    #[DataProvider('sortDirections')]
+    public function testFindByWithSorting(array $orderBy): void
     {
         $repo = $this->getFixture();
-        $results = $repo->findBy([], ['lastName' => 'asc', 'email' => 'dEsC']);
+        $results = $repo->findBy([], $orderBy);
         $this->assertResultSizeAndIndexValidity(5, $results);
         $this->assertSame('2@example.com', $results[0]->getEmail());
         $this->assertSame('1@example.com', $results[1]->getEmail());
