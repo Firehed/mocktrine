@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use BadMethodCallException;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
+use DomainException;
 use Firehed\Mocktrine\Entities\GrabBag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
@@ -195,10 +198,33 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 2, 4, 7, 8);
     }
 
-    public function testMemberOf(): void
+    public function testMemberOfIsUnsupported(): void
     {
-        $this->markTestSkipped('MEMBER_OF is not currently supported');
-        // test value is in entity's array
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->memberOf('strField', 'hello'));
+
+        $this->expectException(DomainException::class);
+        $this->repo->matching($crit);
+    }
+
+    public function testNotIsUnsupported(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->not($expr->eq('boolField', true)));
+
+        $this->expectException(DomainException::class);
+        $this->repo->matching($crit);
+    }
+
+    public function testValueExpressionIsUnsupported(): void
+    {
+        $crit = Criteria::create()
+            ->where(new Value(true));
+
+        $this->expectException(BadMethodCallException::class);
+        $this->repo->matching($crit);
     }
 
     public function testStartsWith(): void
