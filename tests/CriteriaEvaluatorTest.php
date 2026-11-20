@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SortDirection;
 
 #[CoversClass(CriteriaEvaluator::class)]
 #[Small]
@@ -77,6 +78,12 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
                 'Unexpected entity found',
             );
         }
+    }
+
+    private function assertCriteriaReturnsIndexesInOrder(Criteria $criteria, int ...$indexes): void
+    {
+        $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
+        $this->assertSame($expected, $this->repo->matching($criteria)->toArray());
     }
 
     public function testEqBool(): void
@@ -333,20 +340,24 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     {
         $crit = Criteria::create()
             ->orderBy([
-                'floatField' => \SortDirection::Descending,
+                'floatField' => SortDirection::Descending,
+                'strField' => SortDirection::Ascending,
             ]);
 
-        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 3, 7, 1, 8, 9, 0, 2, 4, 6, 5);
     }
 
     public function testOnlyLimits(): void
     {
         $crit = Criteria::create()
-            ->orderBy(['floatField' => \SortDirection::Ascending])
+            ->orderBy([
+                'floatField' => SortDirection::Ascending,
+                'strField' => SortDirection::Ascending,
+            ])
             ->setFirstResult(2)
             ->setMaxResults(5);
 
-        $this->assertCriteriaReturnsIndexes($crit, 4, 2, 0, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 4, 2, 8, 9, 0);
     }
 
     public function testZeroMaxResults(): void
