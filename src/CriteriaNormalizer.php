@@ -63,6 +63,10 @@ class CriteriaNormalizer
                 $expr->getType(),
                 array_map($this->normalizeExpression(...), $expr->getExpressionList()),
             ),
+            default => throw new UnexpectedValueException(sprintf(
+                'Unsupported expression %s',
+                $expr::class,
+            )),
         };
     }
 
