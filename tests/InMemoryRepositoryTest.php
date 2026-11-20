@@ -135,6 +135,13 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('2@example.com', $results[1]->getEmail());
     }
 
+    public function testFindByWithZeroLimit(): void
+    {
+        $repo = $this->getFixture();
+        $results = $repo->findBy([], ['email' => 'ASC'], 0);
+        $this->assertResultSizeAndIndexValidity(0, $results);
+    }
+
     public function testFindByWithLimitExceedingSet(): void
     {
         $repo = $this->getFixture();

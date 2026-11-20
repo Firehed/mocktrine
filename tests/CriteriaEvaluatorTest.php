@@ -282,4 +282,12 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCriteriaReturnsIndexesInOrder($crit, 4, 2, 8, 9, 0);
     }
+
+    public function testZeroMaxResults(): void
+    {
+        $crit = Criteria::create()
+            ->setMaxResults(0);
+
+        $this->assertCriteriaReturnsIndexes($crit);
+    }
 }
