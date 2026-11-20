@@ -29,8 +29,8 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $em = new InMemoryEntityManager(new AttributeDriver(['.']));
         $repo = $em->getRepository(GrabBag::class);
         $this->entities = [
-            new GrabBag(true, 30, 'hello', new DateTimeImmutable()),
-            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable()),
+            new GrabBag(true, 30, 'hello', new DateTimeImmutable(), 'abc'),
+            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable(), 'xyz'),
             new GrabBag(true, 29.5, 'good', new DateTimeImmutable()),
             new GrabBag(true, 800, 'bye', new DateTimeImmutable()),
             new GrabBag(true, 0, 'goodbye', new DateTimeImmutable()),
