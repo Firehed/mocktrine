@@ -168,10 +168,7 @@ class CriteriaEvaluator
                 assert(is_string($value));
                 return fn ($entVal) => str_ends_with($entVal, $value);
         }
-        // Should be unreachable
-        // @codeCoverageIgnoreStart
         throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -213,10 +210,7 @@ class CriteriaEvaluator
             case CompositeExpression::TYPE_OR:
                 return $this->matchCompositeOrExpression($entities, $expr);
             default:
-                // Should be unreachable
-                // @codeCoverageIgnoreStart
                 throw new DomainException(sprintf('Unhandled composite expression type %s', $type));
-                // @codeCoverageIgnoreEnd
         }
     }
 
