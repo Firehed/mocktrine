@@ -159,12 +159,12 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * an UnexpectedValueException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param array<array-key, mixed> $criteria
-     * @param array<string, string|SortDirection>|null $orderBy
+     * @param array<string, mixed> $criteria
+     * @param array<string, SortDirection|'asc'|'desc'|'ASC'|'DESC'>|null $orderBy
      * @param ?int $limit
      * @param ?int $offset
      *
-     * @return Entity[] The objects.
+     * @return list<Entity> The objects.
      *
      * @throws UnexpectedValueException
      */
@@ -223,7 +223,8 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
     /**
      * Finds a single object by a set of criteria.
      *
-     * @param mixed[] $criteria The criteria.
+     * @param array<string, mixed> $criteria The criteria.
+     * @param array<string, SortDirection|'asc'|'desc'|'ASC'|'DESC'>|null $orderBy
      *
      * @return ?Entity The object.
      */
@@ -256,7 +257,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
     }
 
     /**
-     * @return Entity[]
+     * @return list<Entity>
      */
     private function doMatch(Criteria $criteria): array
     {

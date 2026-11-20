@@ -128,6 +128,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     public function testFindByWithSorting(array $orderBy): void
     {
         $repo = $this->getFixture();
+        // @phpstan-ignore argument.type (the ORM accepts any capitalization at runtime)
         $results = $repo->findBy([], $orderBy);
         $this->assertResultSizeAndIndexValidity(5, $results);
         $this->assertSame('2@example.com', $results[0]->getEmail());
@@ -332,6 +333,7 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $repo = $this->getFixture();
         $this->expectException(ORMException::class);
+        // @phpstan-ignore argument.type (intentionally invalid)
         $repo->findBy([], ['email' => 'SOMETHING']);
     }
 
