@@ -152,11 +152,10 @@ class CriteriaEvaluator
             case Comparison::LTE:
                 return fn ($entVal) => $entVal <= $value;
             case Comparison::IN:
-                assert(is_array($value));
-                return fn ($entVal) => in_array($entVal, $value, true);
+                return $this->matchInList($value);
             case Comparison::NIN:
-                assert(is_array($value));
-                return fn ($entVal) => !in_array($entVal, $value, true);
+                $in = $this->matchInList($value);
+                return fn ($entVal) => !$in($entVal);
             case Comparison::CONTAINS:
                 assert(is_string($value));
                 return fn ($entVal) => str_contains($entVal, $value);
@@ -172,6 +171,17 @@ class CriteriaEvaluator
         // @codeCoverageIgnoreStart
         throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * @return callable(mixed $entityValue): bool
+     */
+    private function matchInList(mixed $list): callable
+    {
+        assert(is_array($list));
+        // See Comparison::EQ
+        $asFloats = array_map(fn ($v) => is_int($v) ? (float) $v : $v, $list);
+        return fn ($entVal) => in_array($entVal, is_float($entVal) ? $asFloats : $list, true);
     }
 
     /**
