@@ -256,7 +256,7 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     {
         $crit = Criteria::create()
             ->orderBy([
-                'floatField' => Criteria::DESC,
+                'floatField' => \SortDirection::Descending,
             ]);
 
         $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -265,7 +265,7 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     public function testOnlyLimits(): void
     {
         $crit = Criteria::create()
-            ->orderBy(['floatField' => Criteria::ASC])
+            ->orderBy(['floatField' => \SortDirection::Ascending])
             ->setFirstResult(2)
             ->setMaxResults(5);
 
