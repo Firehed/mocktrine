@@ -78,7 +78,7 @@ class CriteriaEvaluator
             $entities = array_slice($entities, $offset);
         }
 
-        if ($limit = $criteria->getMaxResults()) {
+        if (($limit = $criteria->getMaxResults()) !== null) {
             $entities = array_slice($entities, 0, $limit);
         }
 

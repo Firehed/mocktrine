@@ -197,9 +197,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
         if ($offset) {
             $crit->setFirstResult($offset);
         }
-        if ($limit) {
-            $crit->setMaxResults($limit);
-        }
+        $crit->setMaxResults($limit);
 
         return $this->doMatch($crit);
     }
