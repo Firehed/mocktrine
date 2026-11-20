@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Expr\{
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use DomainException;
 use ReflectionClass;
+use SortDirection;
 use UnexpectedValueException;
 
 use function array_filter;
@@ -242,8 +243,7 @@ class CriteriaEvaluator
 
     /**
      * @param Entity[] $results
-     * @param array<string, string> $orderBy (actually
-     * Criteria::ASC|Criteria:::DESC but the PHPStan annotations won't work)
+     * @param array<string, SortDirection> $orderBy
      * @return Entity[]
      */
     private function sortResults(array $results, array $orderBy): array
@@ -276,23 +276,10 @@ class CriteriaEvaluator
                     // property in the sorting criteria
                     continue;
                 }
-                if ($direction === Criteria::ASC) {
-                    if ($v1 > $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } elseif ($direction === Criteria::DESC) {
-                    if ($v1 < $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } else {
-                    // @codeCoverageIgnoreStart
-                    throw new DomainException(sprintf('Unhandled direction %s', $direction));
-                    // @codeCoverageIgnoreEnd
-                }
+                return match ($direction) {
+                    SortDirection::Ascending => $v1 > $v2 ? 1 : -1,
+                    SortDirection::Descending => $v1 < $v2 ? 1 : -1,
+                };
             }
             // If all loops have exited without returning a comparision
             // result, all of the sort properties should be equal.
