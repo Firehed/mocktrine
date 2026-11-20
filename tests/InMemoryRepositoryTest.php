@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SortDirection;
 use TypeError;
 use UnexpectedValueException;
 
@@ -104,18 +105,23 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array<string, array{array<string, string>}>
+     * @return array<string, array{array<string, string|SortDirection>}>
      */
     public static function sortDirections(): array
     {
-        return [
+        $cases = [
             'strings' => [['lastName' => 'ASC', 'email' => 'DESC']],
             'case-insensitive strings' => [['lastName' => 'asc', 'email' => 'dEsC']],
         ];
+        // ORM 3.7+ accepts SortDirection and provides it through a polyfill
+        if (enum_exists(SortDirection::class)) {
+            $cases['SortDirection'] = [['lastName' => SortDirection::Ascending, 'email' => SortDirection::Descending]];
+        }
+        return $cases;
     }
 
     /**
-     * @param array<string, string> $orderBy
+     * @param array<string, string|SortDirection> $orderBy
      */
     #[DataProvider('sortDirections')]
     public function testFindByWithSorting(array $orderBy): void
