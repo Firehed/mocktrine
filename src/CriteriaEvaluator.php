@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Expr\{
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use DomainException;
 use ReflectionClass;
+use SortDirection;
 use UnexpectedValueException;
 
 use function array_filter;
@@ -78,7 +79,7 @@ class CriteriaEvaluator
             $entities = array_slice($entities, $offset);
         }
 
-        if ($limit = $criteria->getMaxResults()) {
+        if (($limit = $criteria->getMaxResults()) !== null) {
             $entities = array_slice($entities, 0, $limit);
         }
 
@@ -95,9 +96,13 @@ class CriteriaEvaluator
     {
         if ($expr instanceof Comparison) {
             $comparitor = $this->matchComparison($expr);
+            $nullMatches = $this->nullMatches($expr);
             return array_filter(
                 $entities,
-                fn ($e) => $comparitor($this->getValueOfProperty($e, $expr->getField()))
+                function ($e) use ($expr, $comparitor, $nullMatches) {
+                    $value = $this->getValueOfProperty($e, $expr->getField());
+                    return $value === null ? $nullMatches : $comparitor($value);
+                }
             );
         } elseif ($expr instanceof CompositeExpression) {
             return $this->matchCompositeExpression($entities, $expr);
@@ -148,11 +153,10 @@ class CriteriaEvaluator
             case Comparison::LTE:
                 return fn ($entVal) => $entVal <= $value;
             case Comparison::IN:
-                assert(is_array($value));
-                return fn ($entVal) => in_array($entVal, $value, true);
+                return $this->matchInList($value);
             case Comparison::NIN:
-                assert(is_array($value));
-                return fn ($entVal) => !in_array($entVal, $value, true);
+                $in = $this->matchInList($value);
+                return fn ($entVal) => !$in($entVal);
             case Comparison::CONTAINS:
                 assert(is_string($value));
                 return fn ($entVal) => str_contains($entVal, $value);
@@ -164,10 +168,33 @@ class CriteriaEvaluator
                 assert(is_string($value));
                 return fn ($entVal) => str_ends_with($entVal, $value);
         }
-        // Should be unreachable
-        // @codeCoverageIgnoreStart
         throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
-        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * @return callable(mixed $entityValue): bool
+     */
+    private function matchInList(mixed $list): callable
+    {
+        assert(is_array($list));
+        // See Comparison::EQ
+        $asFloats = array_map(fn ($v) => is_int($v) ? (float) $v : $v, $list);
+        return fn ($entVal) => in_array($entVal, is_float($entVal) ? $asFloats : $list, true);
+    }
+
+    /**
+     * Whether a NULL column satisfies the comparison. The ORM only rewrites
+     * `= NULL` and NULL entries in an IN list to IS NULL; SQL treats every
+     * other comparison against NULL as not matching.
+     */
+    private function nullMatches(Comparison $expr): bool
+    {
+        $value = $expr->getValue()->getValue();
+        return match ($expr->getOperator()) {
+            Comparison::EQ => $value === null,
+            Comparison::IN => is_array($value) && in_array(null, $value, true),
+            default => false,
+        };
     }
 
     /**
@@ -183,10 +210,7 @@ class CriteriaEvaluator
             case CompositeExpression::TYPE_OR:
                 return $this->matchCompositeOrExpression($entities, $expr);
             default:
-                // Should be unreachable
-                // @codeCoverageIgnoreStart
                 throw new DomainException(sprintf('Unhandled composite expression type %s', $type));
-                // @codeCoverageIgnoreEnd
         }
     }
 
@@ -242,8 +266,7 @@ class CriteriaEvaluator
 
     /**
      * @param Entity[] $results
-     * @param array<string, string> $orderBy (actually
-     * Criteria::ASC|Criteria:::DESC but the PHPStan annotations won't work)
+     * @param array<string, SortDirection> $orderBy
      * @return Entity[]
      */
     private function sortResults(array $results, array $orderBy): array
@@ -276,23 +299,10 @@ class CriteriaEvaluator
                     // property in the sorting criteria
                     continue;
                 }
-                if ($direction === Criteria::ASC) {
-                    if ($v1 > $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } elseif ($direction === Criteria::DESC) {
-                    if ($v1 < $v2) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                } else {
-                    // @codeCoverageIgnoreStart
-                    throw new DomainException(sprintf('Unhandled direction %s', $direction));
-                    // @codeCoverageIgnoreEnd
-                }
+                return match ($direction) {
+                    SortDirection::Ascending => $v1 > $v2 ? 1 : -1,
+                    SortDirection::Descending => $v1 < $v2 ? 1 : -1,
+                };
             }
             // If all loops have exited without returning a comparision
             // result, all of the sort properties should be equal.

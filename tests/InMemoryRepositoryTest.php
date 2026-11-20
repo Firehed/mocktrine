@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
@@ -12,9 +13,11 @@ use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Error;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SortDirection;
 use TypeError;
 use UnexpectedValueException;
 
@@ -102,22 +105,26 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('3@example.com', $results[1]->getEmail());
     }
 
-    public function testFindByWithSorting(): void
+    /**
+     * @return array<string, array{array<string, string|SortDirection>}>
+     */
+    public static function sortDirections(): array
     {
-        $repo = $this->getFixture();
-        $results = $repo->findBy([], ['lastName' => 'ASC', 'email' => 'DESC']);
-        $this->assertResultSizeAndIndexValidity(5, $results);
-        $this->assertSame('2@example.com', $results[0]->getEmail());
-        $this->assertSame('1@example.com', $results[1]->getEmail());
-        $this->assertSame('5@example.com', $results[2]->getEmail());
-        $this->assertSame('4@example.com', $results[3]->getEmail());
-        $this->assertSame('3@example.com', $results[4]->getEmail());
+        return [
+            'strings' => [['lastName' => 'ASC', 'email' => 'DESC']],
+            'case-insensitive strings' => [['lastName' => 'asc', 'email' => 'dEsC']],
+            'SortDirection' => [['lastName' => SortDirection::Ascending, 'email' => SortDirection::Descending]],
+        ];
     }
 
-    public function testFindBySortingIsCaseInsensitive(): void
+    /**
+     * @param array<string, string|SortDirection> $orderBy
+     */
+    #[DataProvider('sortDirections')]
+    public function testFindByWithSorting(array $orderBy): void
     {
         $repo = $this->getFixture();
-        $results = $repo->findBy([], ['lastName' => 'asc', 'email' => 'dEsC']);
+        $results = $repo->findBy([], $orderBy);
         $this->assertResultSizeAndIndexValidity(5, $results);
         $this->assertSame('2@example.com', $results[0]->getEmail());
         $this->assertSame('1@example.com', $results[1]->getEmail());
@@ -133,6 +140,13 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertResultSizeAndIndexValidity(2, $results);
         $this->assertSame('1@example.com', $results[0]->getEmail());
         $this->assertSame('2@example.com', $results[1]->getEmail());
+    }
+
+    public function testFindByWithZeroLimit(): void
+    {
+        $repo = $this->getFixture();
+        $results = $repo->findBy([], ['email' => 'ASC'], 0);
+        $this->assertResultSizeAndIndexValidity(0, $results);
     }
 
     public function testFindByWithLimitExceedingSet(): void
@@ -322,6 +336,14 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $this->expectException(ORMException::class);
         $repo->findBy([], ['email' => 'SOMETHING']);
+    }
+
+    public function testSortingWithOrderEnumThrows(): void
+    {
+        $repo = $this->getFixture();
+        $this->expectException(TypeError::class);
+        // @phpstan-ignore argument.type (the ORM rejects Order at runtime)
+        $repo->findBy([], ['email' => Order::Ascending]);
     }
 
     public function testSortingOnNonColumnFieldThrows(): void

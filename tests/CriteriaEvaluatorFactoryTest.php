@@ -9,15 +9,29 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Uses throwaway classes: the factory caches per class for the whole process,
+ * so stubbing a real fixture's metadata would leak into other tests.
+ */
 #[CoversClass(CriteriaEvaluatorFactory::class)]
 #[Small]
 class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetInstanceReturnsSingleton(): void
+    /**
+     * @return ClassMetadata<object>
+     */
+    private static function metadataFor(object $entity): ClassMetadata
     {
         $md = self::createStub(ClassMetadata::class);
-        $md->method('getName')->willReturn(Entities\GrabBag::class);
-        $md->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
+        $md->method('getName')->willReturn($entity::class);
+        $md->method('getFieldNames')->willReturn([]);
+        return $md;
+    }
+
+    public function testGetInstanceReturnsSingleton(): void
+    {
+        $md = self::metadataFor(new class {
+        });
 
         $ce1 = CriteriaEvaluatorFactory::getInstance($md);
         $ce2 = CriteriaEvaluatorFactory::getInstance($md);
@@ -31,13 +45,10 @@ class CriteriaEvaluatorFactoryTest extends \PHPUnit\Framework\TestCase
 
     public function testGetInstanceReturnsDifferentInstancesForDifferentClasses(): void
     {
-        $md1 = self::createStub(ClassMetadata::class);
-        $md1->method('getName')->willReturn(Entities\GrabBag::class);
-        $md1->method('getFieldNames')->willReturn(['boolField', 'floatField', 'strField', 'dateField']);
-
-        $md2 = self::createStub(ClassMetadata::class);
-        $md2->method('getName')->willReturn(Entities\User::class);
-        $md2->method('getFieldNames')->willReturn(['id', 'email', 'active', 'lastName']);
+        $md1 = self::metadataFor(new class {
+        });
+        $md2 = self::metadataFor(new class {
+        });
 
         $ce1 = CriteriaEvaluatorFactory::getInstance($md1);
         $ce2 = CriteriaEvaluatorFactory::getInstance($md2);

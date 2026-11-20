@@ -47,15 +47,20 @@ class GrabBag
     #[Mapping\Column]
     private DateTimeInterface $dateField;
 
+    #[Mapping\Column(nullable: true)]
+    private ?string $nullableStrField; // @phpstan-ignore property.onlyWritten (read through reflection)
+
     public function __construct(
         bool $boolField,
         float $floatField,
         string $strField,
-        DateTimeInterface $dateField
+        DateTimeInterface $dateField,
+        ?string $nullableStrField = null,
     ) {
         $this->boolField = $boolField;
         $this->floatField = $floatField;
         $this->strField = $strField;
         $this->dateField = $dateField;
+        $this->nullableStrField = $nullableStrField;
     }
 }

@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace Firehed\Mocktrine;
 
+use BadMethodCallException;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Expression;
+use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
+use DomainException;
 use Firehed\Mocktrine\Entities\GrabBag;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SortDirection;
 
 #[CoversClass(CriteriaEvaluator::class)]
 #[Small]
@@ -29,8 +35,8 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $em = new InMemoryEntityManager(new AttributeDriver(['.']));
         $repo = $em->getRepository(GrabBag::class);
         $this->entities = [
-            new GrabBag(true, 30, 'hello', new DateTimeImmutable()),
-            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable()),
+            new GrabBag(true, 30, 'hello', new DateTimeImmutable(), 'abc'),
+            new GrabBag(true, 30.5, 'hi', new DateTimeImmutable(), 'xyz'),
             new GrabBag(true, 29.5, 'good', new DateTimeImmutable()),
             new GrabBag(true, 800, 'bye', new DateTimeImmutable()),
             new GrabBag(true, 0, 'goodbye', new DateTimeImmutable()),
@@ -52,6 +58,7 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     {
         $actual = $this->repo->matching($criteria)->toArray();
         $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
+        $this->assertCount(count($expected), $actual);
         // Can't use assertEqualsCanonicalizing due to its internals. If it's
         // changed or assertSameCanonicalizing is added, this should be able to
         // use it instead.
@@ -71,6 +78,12 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
                 'Unexpected entity found',
             );
         }
+    }
+
+    private function assertCriteriaReturnsIndexesInOrder(Criteria $criteria, int ...$indexes): void
+    {
+        $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
+        $this->assertSame($expected, $this->repo->matching($criteria)->toArray());
     }
 
     public function testEqBool(): void
@@ -163,9 +176,39 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 1, 3, 7, 8, 9);
     }
 
-    public function testIsNull(): void
+    /**
+     * Mirrors the SQL the ORM generates: `= null` and `<> null` become
+     * IS [NOT] NULL, a null in an IN list adds `OR ... IS NULL`, and any other
+     * comparison against a NULL column is never true.
+     *
+     * @return array<string, array{Expression, int[]}>
+     */
+    public static function nullColumnComparisons(): array
     {
-        $this->markTestSkipped('Need nullable fields first');
+        $expr = Criteria::expr();
+        $f = 'nullableStrField';
+        $nullRows = [2, 3, 4, 5, 6, 7, 8, 9];
+        return [
+            'eq null' => [$expr->eq($f, null), $nullRows],
+            'neq null' => [$expr->neq($f, null), [0, 1]],
+            'neq value' => [$expr->neq($f, 'abc'), [1]],
+            'in' => [$expr->in($f, ['abc']), [0]],
+            'in with null' => [$expr->in($f, ['abc', null]), [0, ...$nullRows]],
+            'notIn' => [$expr->notIn($f, ['abc']), [1]],
+            'lt' => [$expr->lt($f, 'zzz'), [0, 1]],
+            'contains' => [$expr->contains($f, ''), [0, 1]],
+            'startsWith' => [$expr->startsWith($f, ''), [0, 1]],
+            'endsWith' => [$expr->endsWith($f, ''), [0, 1]],
+        ];
+    }
+
+    /**
+     * @param int[] $indexes
+     */
+    #[DataProvider('nullColumnComparisons')]
+    public function testNullColumn(Expression $expr, array $indexes): void
+    {
+        $this->assertCriteriaReturnsIndexes(Criteria::create()->where($expr), ...$indexes);
     }
 
     public function testIn(): void
@@ -175,6 +218,24 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
             ->where($expr->in('strField', ['hello', 'goodbye']));
 
         $this->assertCriteriaReturnsIndexes($crit, 0, 4, 6);
+    }
+
+    public function testInIntForFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->in('floatField', [30, 800]));
+
+        $this->assertCriteriaReturnsIndexes($crit, 0, 3, 8, 9);
+    }
+
+    public function testNotInIntForFloat(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->notIn('floatField', [30, 800]));
+
+        $this->assertCriteriaReturnsIndexes($crit, 1, 2, 4, 5, 6, 7);
     }
 
     public function testNotIn(): void
@@ -195,10 +256,33 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 2, 4, 7, 8);
     }
 
-    public function testMemberOf(): void
+    public function testMemberOfIsUnsupported(): void
     {
-        $this->markTestSkipped('MEMBER_OF is not currently supported');
-        // test value is in entity's array
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->memberOf('strField', 'hello'));
+
+        $this->expectException(DomainException::class);
+        $this->repo->matching($crit);
+    }
+
+    public function testNotIsUnsupported(): void
+    {
+        $expr = Criteria::expr();
+        $crit = Criteria::create()
+            ->where($expr->not($expr->eq('boolField', true)));
+
+        $this->expectException(DomainException::class);
+        $this->repo->matching($crit);
+    }
+
+    public function testValueExpressionIsUnsupported(): void
+    {
+        $crit = Criteria::create()
+            ->where(new Value(true));
+
+        $this->expectException(BadMethodCallException::class);
+        $this->repo->matching($crit);
     }
 
     public function testStartsWith(): void
@@ -256,19 +340,31 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     {
         $crit = Criteria::create()
             ->orderBy([
-                'floatField' => Criteria::DESC,
+                'floatField' => SortDirection::Descending,
+                'strField' => SortDirection::Ascending,
             ]);
 
-        $this->assertCriteriaReturnsIndexes($crit, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 3, 7, 1, 8, 9, 0, 2, 4, 6, 5);
     }
 
     public function testOnlyLimits(): void
     {
         $crit = Criteria::create()
-            ->orderBy(['floatField' => Criteria::ASC])
+            ->orderBy([
+                'floatField' => SortDirection::Ascending,
+                'strField' => SortDirection::Ascending,
+            ])
             ->setFirstResult(2)
             ->setMaxResults(5);
 
-        $this->assertCriteriaReturnsIndexes($crit, 4, 2, 0, 8, 9);
+        $this->assertCriteriaReturnsIndexesInOrder($crit, 4, 2, 8, 9, 0);
+    }
+
+    public function testZeroMaxResults(): void
+    {
+        $crit = Criteria::create()
+            ->setMaxResults(0);
+
+        $this->assertCriteriaReturnsIndexes($crit);
     }
 }
