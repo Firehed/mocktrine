@@ -63,7 +63,7 @@ class CriteriaEvaluator
 
     /**
      * @param Entity[] $entities
-     * @return list<Entity>
+     * @return Entity[]
      */
     public function evaluate(array $entities, Criteria $criteria): array
     {
