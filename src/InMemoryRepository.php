@@ -259,11 +259,8 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      */
     private function doMatch(Criteria $criteria): array
     {
-        $expr = $criteria->getWhereExpression();
-
-        /** @var CriteriaEvaluator<Entity> */
-        $ce = CriteriaEvaluatorFactory::getInstance($this->metadata);
-        return $ce->evaluate($this->managedEntities, $criteria);
+        $normalized = (new CriteriaNormalizer($this->metadata))->normalize($criteria);
+        return array_values((new ArrayCollection($this->managedEntities))->matching($normalized)->toArray());
     }
 
     /**

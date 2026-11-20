@@ -14,7 +14,8 @@ use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(CriteriaEvaluator::class)]
+#[CoversClass(CriteriaNormalizer::class)]
+#[CoversClass(InMemoryRepository::class)]
 #[Small]
 class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
