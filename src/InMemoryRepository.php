@@ -27,6 +27,7 @@ use Doctrine\ORM\Mapping\{
 use Doctrine\ORM\Persisters\Exception\InvalidOrientation;
 use DomainException;
 use ReflectionClass;
+use SortDirection;
 use TypeError;
 use UnexpectedValueException;
 
@@ -159,7 +160,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * not supported.
      *
      * @param array<array-key, mixed> $criteria
-     * @param array<string, string|\SortDirection>|null $orderBy
+     * @param array<string, string|SortDirection>|null $orderBy
      * @param ?int $limit
      * @param ?int $offset
      *
@@ -181,14 +182,12 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
         }
 
         if ($orderBy) {
-            // Criteria::orderBy silently converts any invalid inputs to 'DESC'
-            // This pre-validates them
             $orderings = [];
             foreach ($orderBy as $field => $direction) {
-                if (is_string($direction)) {
+                if (!$direction instanceof SortDirection) {
                     $direction = match (strtoupper(trim($direction))) {
-                        'ASC' => \SortDirection::Ascending,
-                        'DESC' => \SortDirection::Descending,
+                        'ASC' => SortDirection::Ascending,
+                        'DESC' => SortDirection::Descending,
                         default => throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field),
                     };
                 }
