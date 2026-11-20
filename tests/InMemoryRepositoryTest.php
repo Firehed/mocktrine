@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Firehed\Mocktrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
@@ -328,6 +329,14 @@ class InMemoryRepositoryTest extends \PHPUnit\Framework\TestCase
         $repo = $this->getFixture();
         $this->expectException(ORMException::class);
         $repo->findBy([], ['email' => 'SOMETHING']);
+    }
+
+    public function testSortingWithOrderEnumThrows(): void
+    {
+        $repo = $this->getFixture();
+        $this->expectException(TypeError::class);
+        // @phpstan-ignore argument.type (the ORM rejects Order at runtime)
+        $repo->findBy([], ['email' => Order::Ascending]);
     }
 
     public function testSortingOnNonColumnFieldThrows(): void
