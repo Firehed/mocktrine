@@ -52,6 +52,7 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
     {
         $actual = $this->repo->matching($criteria)->toArray();
         $expected = array_map(fn ($i) => $this->entities[$i], $indexes);
+        $this->assertCount(count($expected), $actual);
         // Can't use assertEqualsCanonicalizing due to its internals. If it's
         // changed or assertSameCanonicalizing is added, this should be able to
         // use it instead.
