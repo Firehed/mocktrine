@@ -95,9 +95,13 @@ class CriteriaEvaluator
     {
         if ($expr instanceof Comparison) {
             $comparitor = $this->matchComparison($expr);
+            $nullMatches = $this->nullMatches($expr);
             return array_filter(
                 $entities,
-                fn ($e) => $comparitor($this->getValueOfProperty($e, $expr->getField()))
+                function ($e) use ($expr, $comparitor, $nullMatches) {
+                    $value = $this->getValueOfProperty($e, $expr->getField());
+                    return $value === null ? $nullMatches : $comparitor($value);
+                }
             );
         } elseif ($expr instanceof CompositeExpression) {
             return $this->matchCompositeExpression($entities, $expr);
@@ -168,6 +172,21 @@ class CriteriaEvaluator
         // @codeCoverageIgnoreStart
         throw new DomainException(sprintf('Unhandled operator %s', $expr->getOperator()));
         // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * Whether a NULL column satisfies the comparison. The ORM only rewrites
+     * `= NULL` and NULL entries in an IN list to IS NULL; SQL treats every
+     * other comparison against NULL as not matching.
+     */
+    private function nullMatches(Comparison $expr): bool
+    {
+        $value = $expr->getValue()->getValue();
+        return match ($expr->getOperator()) {
+            Comparison::EQ => $value === null,
+            Comparison::IN => is_array($value) && in_array(null, $value, true),
+            default => false,
+        };
     }
 
     /**
