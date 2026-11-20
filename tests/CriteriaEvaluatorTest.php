@@ -6,10 +6,12 @@ namespace Firehed\Mocktrine;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Firehed\Mocktrine\Entities\GrabBag;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -170,9 +172,39 @@ class CriteriaEvaluatorTest extends \PHPUnit\Framework\TestCase
         $this->assertCriteriaReturnsIndexes($crit, 0, 1, 3, 7, 8, 9);
     }
 
-    public function testIsNull(): void
+    /**
+     * Mirrors the SQL the ORM generates: `= null` and `<> null` become
+     * IS [NOT] NULL, a null in an IN list adds `OR ... IS NULL`, and any other
+     * comparison against a NULL column is never true.
+     *
+     * @return array<string, array{Expression, int[]}>
+     */
+    public static function nullColumnComparisons(): array
     {
-        $this->markTestSkipped('Need nullable fields first');
+        $expr = Criteria::expr();
+        $f = 'nullableStrField';
+        $nullRows = [2, 3, 4, 5, 6, 7, 8, 9];
+        return [
+            'eq null' => [$expr->eq($f, null), $nullRows],
+            'neq null' => [$expr->neq($f, null), [0, 1]],
+            'neq value' => [$expr->neq($f, 'abc'), [1]],
+            'in' => [$expr->in($f, ['abc']), [0]],
+            'in with null' => [$expr->in($f, ['abc', null]), [0, ...$nullRows]],
+            'notIn' => [$expr->notIn($f, ['abc']), [1]],
+            'lt' => [$expr->lt($f, 'zzz'), [0, 1]],
+            'contains' => [$expr->contains($f, ''), [0, 1]],
+            'startsWith' => [$expr->startsWith($f, ''), [0, 1]],
+            'endsWith' => [$expr->endsWith($f, ''), [0, 1]],
+        ];
+    }
+
+    /**
+     * @param int[] $indexes
+     */
+    #[DataProvider('nullColumnComparisons')]
+    public function testNullColumn(Expression $expr, array $indexes): void
+    {
+        $this->assertCriteriaReturnsIndexes(Criteria::create()->where($expr), ...$indexes);
     }
 
     public function testIn(): void
