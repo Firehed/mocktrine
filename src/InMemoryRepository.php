@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\{
     ArrayCollection,
     Criteria,
     Expr,
-    Order,
     Selectable,
 };
 use Doctrine\DBAL\LockMode;
@@ -28,6 +27,7 @@ use Doctrine\ORM\Mapping\{
 use Doctrine\ORM\Persisters\Exception\InvalidOrientation;
 use DomainException;
 use ReflectionClass;
+use SortDirection;
 use TypeError;
 use UnexpectedValueException;
 
@@ -160,7 +160,7 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
      * not supported.
      *
      * @param array<array-key, mixed> $criteria
-     * @param array<string, string|Order>|null $orderBy
+     * @param array<string, string|SortDirection>|null $orderBy
      * @param ?int $limit
      * @param ?int $offset
      *
@@ -184,15 +184,18 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
         if ($orderBy) {
             // Criteria::orderBy silently converts any invalid inputs to 'DESC'
             // This pre-validates them
+            $orderings = [];
             foreach ($orderBy as $field => $direction) {
-                if (is_string($direction)) {
-                    $direction = strtoupper(trim($direction));
-                    if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
-                        throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field);
-                    }
+                if ($direction instanceof SortDirection) {
+                    $direction = $direction === SortDirection::Ascending ? Criteria::ASC : Criteria::DESC;
                 }
+                $direction = strtoupper(trim($direction));
+                if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
+                    throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field);
+                }
+                $orderings[$field] = $direction;
             }
-            $crit->orderBy($orderBy);
+            $crit->orderBy($orderings);
         }
         if ($offset) {
             $crit->setFirstResult($offset);
