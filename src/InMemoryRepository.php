@@ -184,15 +184,18 @@ class InMemoryRepository extends EntityRepository implements ObjectRepository, S
         if ($orderBy) {
             // Criteria::orderBy silently converts any invalid inputs to 'DESC'
             // This pre-validates them
+            $orderings = [];
             foreach ($orderBy as $field => $direction) {
                 if (is_string($direction)) {
-                    $direction = strtoupper(trim($direction));
-                    if ($direction !== Criteria::ASC && $direction !== Criteria::DESC) {
-                        throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field);
-                    }
+                    $direction = match (strtoupper(trim($direction))) {
+                        'ASC' => \SortDirection::Ascending,
+                        'DESC' => \SortDirection::Descending,
+                        default => throw InvalidOrientation::fromClassNameAndField($this->getClassName(), $field),
+                    };
                 }
+                $orderings[$field] = $direction;
             }
-            $crit->orderBy($orderBy);
+            $crit->orderBy($orderings);
         }
         if ($offset) {
             $crit->setFirstResult($offset);
